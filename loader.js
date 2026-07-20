@@ -12,7 +12,7 @@
   f.setAttribute("scrolling","no");
   f.loading = "lazy";
   f.style.cssText = "width:100%;border:0;height:1600px;display:block;";
-  f.src = "https://cdn.jsdelivr.net/gh/aseideman/bigworks-tools@main/invoice-generator.html?mode="+m+(p?"&preset="+p:"");
+  f.src = "https://aseideman.github.io/bigworks-tools/invoice-generator.html?mode="+m+(p?"&preset="+p:"");
   mount.appendChild(f);
   window.addEventListener("message", function(e){ if(e.data && e.data.bwigH){ f.style.height = (e.data.bwigH+8)+"px"; } });
 })();
