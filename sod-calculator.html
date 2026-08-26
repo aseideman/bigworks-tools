@@ -129,7 +129,7 @@
 
       <div class="field">
         <label>Price per pallet <span class="hint">your supplier</span></label>
-        <div class="in-wrap"><span class="pfx">$</span><input type="number" id="ppp" class="haspfx" inputmode="decimal" min="0" step="1" value="425"></div>
+        <div class="in-wrap"><span class="pfx">$</span><input type="number" id="ppp" class="haspfx" inputmode="decimal" min="0" step="1" value="350"></div>
       </div>
     </div>
 
@@ -303,7 +303,7 @@
 
   $('resetBtn').addEventListener('click', function(){
     areas = []; nextId = 1;
-    $('waste').value = 7; $('pallet').value = 500; $('ppp').value = 425;
+    $('waste').value = 7; $('pallet').value = 500; $('ppp').value = 350;
     $('pieceType').selectedIndex = 0;
     addArea('rect');
   });
