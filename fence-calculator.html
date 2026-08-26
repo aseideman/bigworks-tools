@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fence Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA; --success:#04DF13; --error:#D4183D;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:transform .05s,box-shadow .15s,background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:15px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number],input[type=text]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:44px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  /* right column */
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700;text-align:left;padding:0 0 8px}
+  thead th.r{text-align:right}
+  tbody td{padding:9px 0;border-top:1px solid #2A2A2E;vertical-align:top}
+  tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tbody td .spec{display:block;color:#8B8B94;font-size:11.5px;font-weight:500;margin-top:2px}
+  tbody tr.gate td{color:var(--yellow)}
+  .totrow td{border-top:2px solid var(--yellow);padding-top:12px;font-weight:800;font-size:15px}
+
+  .costcol{color:#B9B9C0}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid #2A2A2E}
+  .grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700}
+  .grand .val{font-size:32px;font-weight:900;color:var(--yellow);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:.02em;list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+
+  .prices{margin-top:20px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .foot a:hover{color:#000}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Fence Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- INPUTS -->
+    <div class="card">
+      <h2>Your fence</h2>
+      <p class="lede">Measure the total run. We'll do the rest.</p>
+
+      <div class="field">
+        <label>Fence style</label>
+        <div class="seg" id="styleSeg">
+          <button type="button" data-style="privacy" class="on">Wood privacy</button>
+          <button type="button" data-style="picket">Wood picket</button>
+          <button type="button" data-style="chainlink">Chain link</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Total length <span class="hint">linear feet</span></label>
+        <div class="in-wrap"><input type="number" id="len" class="hassfx" inputmode="decimal" min="0" step="1" placeholder="100"><span class="sfx">ft</span></div>
+      </div>
+
+      <div class="field">
+        <label>Height</label>
+        <div class="row2">
+          <select id="height">
+            <option value="3">3 ft</option>
+            <option value="4">4 ft</option>
+            <option value="5">5 ft</option>
+            <option value="6" selected>6 ft</option>
+            <option value="8">8 ft</option>
+          </select>
+          <select id="spacing">
+            <option value="6">Posts every 6 ft</option>
+            <option value="8" selected>Posts every 8 ft</option>
+            <option value="10">Posts every 10 ft</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" id="picketGapField" style="display:none">
+        <label>Gap between pickets</label>
+        <div class="in-wrap"><input type="number" id="picketGap" class="hassfx" inputmode="decimal" min="0" max="6" step="0.25" value="2.5"><span class="sfx">in</span></div>
+      </div>
+
+      <div class="field">
+        <label>Gates &amp; corners</label>
+        <div class="row2">
+          <div class="in-wrap"><input type="number" id="gates" class="hassfx" inputmode="numeric" min="0" max="20" step="1" value="1"><span class="sfx" style="font-size:12px">gates</span></div>
+          <div class="in-wrap"><input type="number" id="corners" class="hassfx" inputmode="numeric" min="0" max="40" step="1" value="0"><span class="sfx" style="font-size:12px">corners</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Waste factor <span class="hint">cuts, culls, breakage</span></label>
+        <div class="in-wrap"><input type="number" id="waste" class="hassfx" inputmode="decimal" min="0" max="50" step="1" value="10"><span class="sfx">%</span></div>
+      </div>
+
+      <div class="prices">
+        <h3>Your prices</h3>
+        <p class="note">Rough national averages — swap in your supplier's real numbers for an accurate material cost.</p>
+        <div class="pgrid" id="priceGrid"></div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="card result">
+      <div class="head">
+        <h2>Materials list</h2>
+        <span class="sec" id="secCount">—</span>
+      </div>
+      <div class="body">
+        <table>
+          <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Est. cost</th></tr></thead>
+          <tbody id="matBody"></tbody>
+        </table>
+
+        <div class="grand">
+          <span class="lbl">Material total</span>
+          <span class="val num" id="grandTotal">$0</span>
+        </div>
+
+        <div class="warn" id="warn">Enter your fence length to see the materials list.</div>
+
+        <div class="actions">
+          <button class="btn-yellow" id="copyBtn" type="button">Copy list</button>
+          <button class="btn-ghost" id="shopBtn" type="button">Find it locally</button>
+        </div>
+
+        <details class="assump">
+          <summary>How we calculated this</summary>
+          <ul id="assumpList"></ul>
+        </details>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a>
+  </div>
+
+  <p class="disclaim">
+    Quantities are estimates for planning and bidding. Always confirm post depth, setback, and height against your local
+    building code and HOA rules before you buy — some jurisdictions cap fence height or require a permit.
+    Call 811 before you dig.
+  </p>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var style = 'privacy';
+
+  // ---- Price defaults (editable by the user) ----
+  var PRICES = {
+    post:      { label:'4x4 post',        val:12 },
+    rail:      { label:'2x4 rail',        val:7  },
+    picket:    { label:'Picket',          val:4  },
+    concrete:  { label:'Concrete (60lb)', val:6  },
+    screws:    { label:'Screws (5lb box)',val:30 },
+    gate:      { label:'Gate hardware',   val:25 },
+    // chain link
+    clpost:    { label:'Line post',       val:16 },
+    clterm:    { label:'Terminal post',   val:24 },
+    clrail:    { label:'Top rail (10ft)', val:14 },
+    clfabric:  { label:'Fabric (per ft)', val:4  },
+    clhw:      { label:'Hardware set',    val:5  }
+  };
+
+  // Build the price inputs once
+  (function buildPrices(){
+    var g = $('priceGrid'), html = '';
+    Object.keys(PRICES).forEach(function(k){
+      html += '<div class="field"><label>'+PRICES[k].label+'</label>'+
+              '<div class="in-wrap"><span class="pfx">$</span>'+
+              '<input type="number" class="haspfx price-in" data-k="'+k+'" inputmode="decimal" min="0" step="0.01" value="'+PRICES[k].val+'"></div></div>';
+    });
+    g.innerHTML = html;
+    Array.prototype.forEach.call(g.querySelectorAll('.price-in'), function(el){
+      el.addEventListener('input', recalc);
+    });
+  })();
+
+  function n(v){ v = parseFloat(v); return isFinite(v) && v > 0 ? v : 0; }
+  function ni(v){ return Math.max(0, Math.round(n(v))); }
+  function money(v){
+    if(!isFinite(v)) v = 0;
+    return '$' + Math.round(v).toLocaleString('en-US');
+  }
+  function price(k){
+    var el = document.querySelector('.price-in[data-k="'+k+'"]');
+    return el ? n(el.value) : PRICES[k].val;
+  }
+  function up(v, wastePct){ return Math.ceil(v * (1 + wastePct/100)); }
+
+  // Post burial depth: 1/3 of above-ground height, min 24"
+  function burialFt(h){ return Math.max(2, h/3); }
+  // Nominal post stock length actually sold
+  function postStock(h){
+    var need = h + burialFt(h);
+    var stock = [6,8,10,12,14,16];
+    for(var i=0;i<stock.length;i++){ if(stock[i] >= need - 0.01) return stock[i]; }
+    return 16;
+  }
+  function railsPerSection(h){ return h >= 6 ? 3 : 2; }
+
+  var lastRows = [], lastAssump = [];
+
+  function recalc(){
+    var len     = n($('len').value);
+    var h       = n($('height').value) || 6;
+    var spacing = n($('spacing').value) || 8;
+    var gates   = ni($('gates').value);
+    var corners = ni($('corners').value);
+    var waste   = n($('waste').value);
+    var gap     = n($('picketGap').value);
+
+    var warn = $('warn');
+    warn.classList.remove('on');
+
+    var rows = [], assump = [], total = 0, sections = 0;
+
+    if(len <= 0){
+      warn.textContent = 'Enter your fence length to see the materials list.';
+      warn.classList.add('on');
+      $('matBody').innerHTML = '';
+      $('grandTotal').textContent = '$0';
+      $('secCount').textContent = '—';
+      $('assumpList').innerHTML = '<li>Enter a length to see the math.</li>';
+      lastRows = []; lastAssump = [];
+      ph();
+      return;
+    }
+
+    sections = Math.ceil(len / spacing);
+
+    function add(item, spec, qty, unitCost){
+      var cost = qty * unitCost;
+      total += cost;
+      rows.push({ item:item, spec:spec, qty:qty, cost:cost });
+    }
+
+    if(style === 'privacy' || style === 'picket'){
+      var pStock = postStock(h);
+      var bur = burialFt(h);
+      var rps = railsPerSection(h);
+
+      // Posts: one per section boundary + 1, plus an extra post per gate opening, plus corners.
+      // Discrete structural count — no waste multiplier.
+      var posts = sections + 1 + gates + corners;
+      add('4x4 posts', 'Pressure-treated, ' + pStock + ' ft — ' + bur.toFixed(1) + ' ft in the ground',
+          posts, price('post'));
+
+      // Rails: one per section per rail course, cut to spacing
+      var rails = sections * rps;
+      add('2x4 rails', rps + ' courses × ' + sections + ' sections, ' + spacing + ' ft each',
+          up(rails, waste), price('rail'));
+
+      // Pickets
+      var picketW = 5.5; // 1x6 dog-ear actual width
+      var perPicket = style === 'privacy' ? picketW : (picketW + gap);
+      var pickets = Math.ceil((len * 12) / perPicket);
+      add('Pickets', '1x6 × ' + h + ' ft' + (style === 'picket' ? ', ' + gap + '" gaps' : ', butted tight'),
+          up(pickets, waste), price('picket'));
+
+      // Concrete: 10" hole less the post itself; 60 lb bag = 0.45 cu ft.
+      // Total the volume across every hole, THEN round up — rounding per hole overbuys badly.
+      var holeVol = (Math.PI * Math.pow(10/12/2, 2) * bur) - (Math.pow(3.5/12, 2) * bur);
+      var bags = Math.ceil((holeVol * posts) / 0.45);
+      add('Concrete', posts + ' holes × ' + holeVol.toFixed(2) + ' cu ft, 60 lb bags', bags, price('concrete'));
+
+      // Screws: 2 per rail per picket
+      var screws = pickets * rps * 2;
+      var boxes = Math.ceil(screws / 700);
+      add('Exterior screws', '~' + screws.toLocaleString('en-US') + ' screws, #8 × 2½"', boxes, price('screws'));
+
+      if(gates > 0){
+        rows.push({ item:'Gate hardware', spec:'Hinges, latch, bracing per gate', qty:gates, cost:gates*price('gate'), gate:true });
+        total += gates * price('gate');
+      }
+
+      assump = [
+        'Posts sit ' + bur.toFixed(1) + ' ft deep (⅓ of height, 2 ft minimum) → ' + pStock + ' ft stock.',
+        'Sections: ' + len + ' ft ÷ ' + spacing + ' ft = ' + sections + ' sections, so ' + (sections+1) + ' posts before gates and corners.',
+        rps + ' rail courses (3 at 6 ft and up, 2 below).',
+        style === 'privacy'
+          ? 'Pickets butted tight at 5.5" actual width (nominal 1x6).'
+          : 'Pickets at 5.5" actual width plus a ' + gap + '" gap = ' + perPicket.toFixed(2) + '" per picket.',
+        'Concrete: 10" diameter hole less the post itself, at 0.45 cu ft per 60 lb bag. We total every hole then round up once — rounding each hole separately overbuys by roughly 40%.',
+        'Waste factor of ' + waste + '% applied to rails and pickets only. Posts, concrete and hardware are counted exactly.'
+      ];
+
+    } else {
+      // ---- CHAIN LINK ----
+      var terminals = 2 + corners + (gates * 2); // ends + corners + a post each side of every gate
+      var linePosts = Math.max(0, sections - 1);
+      add('Terminal posts', 'Ends, corners and gate posts — set in concrete', terminals, price('clterm'));
+      add('Line posts', spacing + ' ft on centre', up(linePosts, waste), price('clpost'));
+
+      var railSticks = Math.ceil(len / 10.5);
+      add('Top rail', '10 ft 6 in sticks', up(railSticks, waste), price('clrail'));
+
+      var fabricFt = up(len, waste);
+      add('Chain link fabric', h + ' ft tall, sold by the foot', fabricFt, price('clfabric'));
+
+      // Tension bars: 1 per end/corner, 2 per gate post pair
+      var tensionBars = terminals;
+      // Tension bands: (height - 1) per terminal
+      var bands = terminals * Math.max(1, Math.round(h) - 1);
+      // Tie wires: line posts every 12", top rail every 24"
+      var ties = Math.ceil(linePosts * h) + Math.ceil(len / 2);
+      var hwSets = Math.ceil((tensionBars + bands + ties) / 25);
+      add('Hardware', tensionBars + ' tension bars, ' + bands + ' bands, ~' + ties + ' ties', hwSets, price('clhw'));
+
+      var clBags = terminals * 3 + linePosts * 2;
+      add('Concrete', '3 bags per terminal, 2 per line post, 60 lb', clBags, price('concrete'));
+
+      if(gates > 0){
+        rows.push({ item:'Gate hardware', spec:'Frame, hinges, fork latch per gate', qty:gates, cost:gates*price('gate'), gate:true });
+        total += gates * price('gate');
+      }
+
+      assump = [
+        'Terminal posts: 2 ends + ' + corners + ' corners + 2 per gate = ' + terminals + '.',
+        'Line posts at ' + spacing + ' ft on centre between terminals.',
+        'Top rail in 10 ft 6 in sticks, the standard length.',
+        'Tension bands sized at height minus one per terminal post.',
+        'Tie wires every 12" on line posts and every 24" along the top rail.',
+        'Terminal posts take 3 bags of concrete, line posts 2.',
+        'Waste factor of ' + waste + '% applied to line posts, rail and fabric.'
+      ];
+    }
+
+    // Render
+    var html = '';
+    rows.forEach(function(r){
+      html += '<tr'+(r.gate?' class="gate"':'')+'><td>'+r.item+'<span class="spec">'+r.spec+'</span></td>'+
+              '<td class="r">'+r.qty.toLocaleString('en-US')+'</td>'+
+              '<td class="r costcol">'+money(r.cost)+'</td></tr>';
+    });
+    $('matBody').innerHTML = html;
+    $('grandTotal').textContent = money(total);
+    $('secCount').textContent = sections + ' section' + (sections===1?'':'s') + ' · ' + len + ' ft';
+    $('assumpList').innerHTML = assump.map(function(a){ return '<li>'+a+'</li>'; }).join('');
+
+    lastRows = rows; lastAssump = assump;
+    ph();
+  }
+
+  // ---- Style switcher ----
+  Array.prototype.forEach.call($('styleSeg').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      style = b.getAttribute('data-style');
+      Array.prototype.forEach.call($('styleSeg').querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      $('picketGapField').style.display = (style === 'picket') ? '' : 'none';
+      recalc();
+    });
+  });
+
+  ['len','height','spacing','gates','corners','waste','picketGap'].forEach(function(id){
+    $(id).addEventListener('input', recalc);
+    $(id).addEventListener('change', recalc);
+  });
+
+  // ---- Copy list ----
+  $('copyBtn').addEventListener('click', function(){
+    if(!lastRows.length) return;
+    var lines = ['FENCE MATERIALS — ' + n($('len').value) + ' ft, ' + n($('height').value) + ' ft high', ''];
+    lastRows.forEach(function(r){
+      lines.push(r.qty + ' × ' + r.item + '  (' + r.spec + ')  ' + money(r.cost));
+    });
+    lines.push('', 'Material total: ' + $('grandTotal').textContent);
+    lines.push('', 'Calculated at bigworks.app/tools/fence-calculator');
+    var txt = lines.join('\n');
+    var btn = $('copyBtn');
+    function done(ok){
+      btn.textContent = ok ? 'Copied ✓' : 'Press ⌘C';
+      setTimeout(function(){ btn.textContent = 'Copy list'; }, 1800);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ done(true); }, function(){ fallback(txt, done); });
+    } else { fallback(txt, done); }
+  });
+
+  function fallback(txt, done){
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    done(ok);
+  }
+
+  // ---- Source locally ----
+  $('shopBtn').addEventListener('click', function(){
+    var q = style === 'chainlink' ? 'chain link fence' : 'fence posts pickets';
+    window.open('https://www.homedepot.com/s/' + encodeURIComponent(q), '_blank', 'noopener');
+  });
+
+  $('resetBtn').addEventListener('click', function(){
+    $('len').value = '';
+    $('height').value = '6';
+    $('spacing').value = '8';
+    $('gates').value = '1';
+    $('corners').value = '0';
+    $('waste').value = '10';
+    $('picketGap').value = '2.5';
+    recalc();
+  });
+
+  // ---------- Embed integration (iframe auto-resize) ----------
+  function ph(){ try{ parent.postMessage({bwigH: document.body.scrollHeight}, '*'); }catch(e){} }
+  window.addEventListener('load', ph);
+  if(window.ResizeObserver){ new ResizeObserver(ph).observe(document.body); }
+  document.addEventListener('input', function(){ setTimeout(ph, 30); }, true);
+  document.addEventListener('click', function(){ setTimeout(ph, 90); }, true);
+  setTimeout(ph, 350);
+
+  recalc();
+})();
+</script>
+</body>
+</html>
