@@ -12,9 +12,28 @@
     "roof-shingle-calculator":  { f:"roof-shingle-calculator.html",  t:"BIG WORKS roof shingle calculator",  h:1100 }
   };
 
+  // Material/volume calculators: one engine, many pages. slug -> ?material= preset.
+  var MATS = {
+    "mulch-calculator":      "mulch",
+    "topsoil-calculator":    "topsoil",
+    "compost-calculator":    "compost",
+    "gravel-calculator":     "gravel",
+    "stone-calculator":      "stone",
+    "river-rock-calculator": "riverrock",
+    "sand-calculator":       "sand",
+    "dirt-calculator":       "dirt",
+    "asphalt-calculator":    "asphalt",
+    "concrete-calculator":   "concrete",
+    "cubic-yard-calculator": "generic"
+  };
+
   var src, title, h;
 
-  if(CALCS[seg]){
+  if(MATS[seg]){
+    src = BASE + "volume-calculator.html?material=" + MATS[seg];
+    title = "BIG WORKS " + seg.replace(/-/g," ");
+    h = 860;
+  } else if(CALCS[seg]){
     src = BASE + CALCS[seg].f;
     title = CALCS[seg].t;
     h = CALCS[seg].h;
