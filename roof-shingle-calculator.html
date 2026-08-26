@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Roof Shingle Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:14px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:50px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:15px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .seg{display:grid;background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg.c2{grid-template-columns:1fr 1fr}
+  .seg.c3{grid-template-columns:repeat(3,1fr)}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+  .big{font-size:44px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--yellow);font-variant-numeric:tabular-nums}
+  .big-sub{color:#B9B9C0;font-size:13px;margin-top:4px;margin-bottom:20px}
+  .stat{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid #2A2A2E;font-size:14px;gap:12px}
+  .stat .lbl{color:#B9B9C0}
+  .stat .lbl small{display:block;color:#6E6E78;font-size:11px}
+  .stat .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .stat.tot{border-top:2px solid var(--yellow);margin-top:6px;padding-top:12px}
+  .stat.tot .val{font-size:20px;color:var(--yellow);font-weight:900}
+  .note{background:#1C1C1E;border-radius:var(--radius-sm);padding:11px 13px;margin-top:14px;font-size:12.5px;color:#B9B9C0;line-height:1.55}
+  .note b{color:var(--yellow)}
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ "}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+  .prices{margin-top:18px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .pnote{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Roof Shingle Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <div class="card">
+      <h2>Your roof</h2>
+      <p class="lede">Measure the footprint from the ground. Pitch does the rest.</p>
+
+      <div class="field">
+        <label>Roof shape</label>
+        <div class="seg c3" id="shapeSeg">
+          <button type="button" data-s="gable" class="on">Gable</button>
+          <button type="button" data-s="hip">Hip</button>
+          <button type="button" data-s="shed">Shed</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Measurement</label>
+        <div class="seg c2" id="modeSeg">
+          <button type="button" data-m="foot" class="on">Footprint</button>
+          <button type="button" data-m="area">Known roof area</button>
+        </div>
+      </div>
+
+      <div class="field" id="footWrap">
+        <label>Building footprint <span class="hint">ground dimensions</span></label>
+        <div class="row2">
+          <div class="in-wrap"><input type="number" id="fL" class="hassfx" inputmode="decimal" min="0" step="0.5" placeholder="Length"><span class="sfx">ft</span></div>
+          <div class="in-wrap"><input type="number" id="fW" class="hassfx" inputmode="decimal" min="0" step="0.5" placeholder="Width"><span class="sfx">ft</span></div>
+        </div>
+      </div>
+
+      <div class="field" id="areaWrap" style="display:none">
+        <label>Actual roof surface area <span class="hint">already pitch-adjusted</span></label>
+        <div class="in-wrap"><input type="number" id="rArea" class="hassfx" inputmode="decimal" min="0" step="10" placeholder="2400"><span class="sfx">sq ft</span></div>
+      </div>
+
+      <div class="field" id="pitchWrap">
+        <label id="pitchLabel">Roof pitch <span class="hint">rise per 12&quot; run</span></label>
+        <select id="pitch">
+          <option value="2">2/12 — nearly flat</option>
+          <option value="3">3/12 — low</option>
+          <option value="4" selected>4/12 — common</option>
+          <option value="5">5/12</option>
+          <option value="6">6/12 — common</option>
+          <option value="7">7/12</option>
+          <option value="8">8/12 — steep</option>
+          <option value="10">10/12 — very steep</option>
+          <option value="12">12/12 — 45°</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Shingle type</label>
+        <select id="shingle">
+          <option value="3" selected>Architectural — 3 bundles / square</option>
+          <option value="3t">3-tab — 3 bundles / square</option>
+          <option value="4">Premium / designer — 4 bundles / square</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Underlayment</label>
+        <select id="under">
+          <option value="1000" selected>Synthetic — 10 sq roll (1,000 sq ft)</option>
+          <option value="400">#15 felt — 4 sq roll (400 sq ft)</option>
+          <option value="200">#30 felt — 2 sq roll (200 sq ft)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Waste <span class="hint" id="wasteHint">10% simple gable</span></label>
+        <div class="in-wrap"><input type="number" id="waste" class="hassfx" inputmode="decimal" min="0" max="40" step="1" value="10"><span class="sfx">%</span></div>
+      </div>
+
+      <div class="prices">
+        <h3>Your prices</h3>
+        <p class="pnote">Rough averages — swap in your supplier's numbers.</p>
+        <div class="pgrid">
+          <div class="field"><label>Shingle bundle</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pBundle" class="haspfx" inputmode="decimal" min="0" step="0.01" value="38"></div></div>
+          <div class="field"><label>Underlayment roll</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pUnder" class="haspfx" inputmode="decimal" min="0" step="0.01" value="110"></div></div>
+          <div class="field"><label>Starter bundle</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pStart" class="haspfx" inputmode="decimal" min="0" step="0.01" value="45"></div></div>
+          <div class="field"><label>Ridge cap bundle</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pRidge" class="haspfx" inputmode="decimal" min="0" step="0.01" value="60"></div></div>
+          <div class="field"><label>Drip edge (10 ft)</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pDrip" class="haspfx" inputmode="decimal" min="0" step="0.01" value="12"></div></div>
+          <div class="field"><label>Ice &amp; water roll</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pIce" class="haspfx" inputmode="decimal" min="0" step="0.01" value="105"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card result">
+      <div class="head">
+        <h2>What to order</h2>
+        <span class="sec" id="secCount">—</span>
+      </div>
+      <div class="body">
+        <div class="big num" id="oSquares">0</div>
+        <div class="big-sub" id="oSquaresSub">roofing squares including waste</div>
+
+        <div class="stat"><span class="lbl">Roof surface area<small id="areaNote">footprint × pitch multiplier</small></span><span class="val num" id="oArea">0 sq ft</span></div>
+        <div class="stat"><span class="lbl">Shingle bundles<small id="bundleNote">3 per square</small></span><span class="val num" id="oBundles">0</span></div>
+        <div class="stat"><span class="lbl">Underlayment rolls<small id="underNote">synthetic</small></span><span class="val num" id="oUnder">0</span></div>
+        <div class="stat"><span class="lbl">Starter strip<small id="startNote">bundles, 110 lin ft each</small></span><span class="val num" id="oStart">0</span></div>
+        <div class="stat"><span class="lbl">Ridge &amp; hip cap<small id="ridgeNote">bundles, 20 lin ft each</small></span><span class="val num" id="oRidge">0</span></div>
+        <div class="stat"><span class="lbl">Drip edge<small id="dripNote">10 ft pieces</small></span><span class="val num" id="oDrip">0</span></div>
+        <div class="stat"><span class="lbl">Ice &amp; water shield<small>rolls, 200 sq ft each</small></span><span class="val num" id="oIce">0</span></div>
+        <div class="stat"><span class="lbl">Roofing nails<small id="nailNote">coil, 1¼&quot;</small></span><span class="val num" id="oNails">0</span></div>
+        <div class="stat tot"><span class="lbl">Material total</span><span class="val num" id="oCost">$0</span></div>
+
+        <div class="note" id="tip"></div>
+        <div class="warn" id="warn">Enter your footprint to see what to order.</div>
+
+        <div class="actions">
+          <button class="btn-yellow" id="copyBtn" type="button">Copy list</button>
+        </div>
+
+        <details class="assump">
+          <summary>How we calculated this</summary>
+          <ul id="assumpList"></ul>
+        </details>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a>
+  </div>
+
+  <p class="disclaim">
+    Measure from the ground where you can. Never walk a roof you are not equipped for — steep-slope work needs fall
+    protection, and most jurisdictions require a permit and an inspection for a full tear-off and replacement.
+    Ice-and-water coverage at the eaves is code-driven and varies by climate zone; check your local requirement.
+  </p>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var shape = 'gable', mode = 'foot';
+
+  function n(v){ v = parseFloat(v); return isFinite(v) && v > 0 ? v : 0; }
+  function money(v){ return '$' + Math.round(v||0).toLocaleString('en-US'); }
+  function fmt(v,d){ return (v||0).toLocaleString('en-US',{minimumFractionDigits:d||0,maximumFractionDigits:d||0}); }
+
+  // Slope multiplier for a given rise per 12" of run
+  function mult(rise){ return Math.sqrt(1 + Math.pow(rise/12, 2)); }
+
+  var DEFAULT_WASTE = { gable:10, hip:15, shed:8 };
+
+  function recalc(){
+    var rise = parseFloat($('pitch').value);
+    var m = mult(rise);
+    var L = n($('fL').value), W = n($('fW').value);
+    // Work with the longer side as L so hip geometry is right
+    if(W > L){ var t = L; L = W; W = t; }
+
+    var waste = n($('waste').value);
+    var underRoll = parseFloat($('under').value);
+    var shingleSel = $('shingle').value;
+    var bundlesPerSq = shingleSel === '4' ? 4 : 3;
+    var shinglesPerSq = shingleSel === '3t' ? 80 : 64;
+
+    var warn = $('warn');
+    warn.classList.remove('on');
+
+    var area, ridgeHipLF = 0, eaveLF = 0, rakeLF = 0, known = (mode === 'area');
+
+    if(known){
+      area = n($('rArea').value);
+    } else {
+      // Surface area is footprint × slope multiplier for every shape here — a hip and a
+      // gable over the same footprint at the same pitch cover exactly the same area.
+      area = L * W * m;
+    }
+
+    if(area <= 0){
+      warn.textContent = known ? 'Enter your roof area to see what to order.' : 'Enter your footprint to see what to order.';
+      warn.classList.add('on');
+      ['oSquares','oArea','oBundles','oUnder','oStart','oRidge','oDrip','oIce','oNails'].forEach(function(id){ $(id).textContent='0'; });
+      $('oCost').textContent='$0'; $('secCount').textContent='—'; $('tip').innerHTML='';
+      $('assumpList').innerHTML = '<li>Enter your measurements to see the math.</li>';
+      ph(); return;
+    }
+
+    if(!known && L > 0 && W > 0){
+      if(shape === 'gable'){
+        ridgeHipLF = L;
+        eaveLF = 2 * L;
+        rakeLF = 4 * (W/2) * m;
+      } else if(shape === 'hip'){
+        // Ridge runs the difference; four hips rise from the corners
+        ridgeHipLF = Math.max(0, L - W) + 4 * (W/2) * Math.sqrt(2 + Math.pow(rise/12, 2));
+        eaveLF = 2 * (L + W);
+        rakeLF = 0;
+      } else { // shed
+        ridgeHipLF = 0;
+        eaveLF = L;
+        rakeLF = 2 * W * m;
+      }
+    } else if(known){
+      // No footprint to derive edges from — approximate from a square-ish roof
+      var side = Math.sqrt(area / m);
+      ridgeHipLF = shape === 'shed' ? 0 : side;
+      eaveLF = shape === 'hip' ? 4 * side : 2 * side;
+      rakeLF = shape === 'hip' ? 0 : 2 * side * m;
+    }
+
+    var areaWaste = area * (1 + waste/100);
+    var squares = areaWaste / 100;
+    var bundles = Math.ceil(squares * bundlesPerSq);
+    var underRolls = Math.ceil(area / underRoll);
+    var startBundles = Math.ceil(eaveLF / 110);
+    var ridgeBundles = ridgeHipLF > 0 ? Math.ceil(ridgeHipLF / 20) : 0;
+    var dripPieces = Math.ceil((eaveLF + rakeLF) / 10);
+    var iceRolls = Math.ceil((eaveLF * 3) / 200);
+    // Roofing coil nails ship 7,200 to a box; ~140 nails per pound at 1¼".
+    var nailCount = squares * shinglesPerSq * 4;
+    var nailLbs = nailCount / 140;
+    var nailBoxes = Math.max(1, Math.ceil(nailCount / 7200));
+
+    var cost = bundles * n($('pBundle').value) + underRolls * n($('pUnder').value) +
+               startBundles * n($('pStart').value) + ridgeBundles * n($('pRidge').value) +
+               dripPieces * n($('pDrip').value) + iceRolls * n($('pIce').value);
+
+    $('oSquares').textContent = fmt(squares,1);
+    $('oArea').textContent = fmt(Math.round(area),0) + ' sq ft';
+    $('oBundles').textContent = fmt(bundles,0);
+    $('oUnder').textContent = fmt(underRolls,0);
+    $('oStart').textContent = fmt(startBundles,0);
+    $('oRidge').textContent = fmt(ridgeBundles,0);
+    $('oDrip').textContent = fmt(dripPieces,0);
+    $('oIce').textContent = fmt(iceRolls,0);
+    $('oNails').textContent = fmt(nailBoxes,0) + ' box' + (nailBoxes===1?'':'es');
+    $('oCost').textContent = money(cost);
+    $('secCount').textContent = rise + '/12 · ×' + m.toFixed(3) + ' · ' + waste + '% waste';
+
+    $('areaNote').textContent = known ? 'as entered' : 'footprint × ' + m.toFixed(3);
+    $('bundleNote').textContent = bundlesPerSq + ' per square';
+    $('underNote').textContent = fmt(underRoll,0) + ' sq ft per roll';
+    $('ridgeNote').textContent = ridgeHipLF > 0 ? fmt(Math.round(ridgeHipLF),0) + ' lin ft of ridge + hip' : 'shed roof — none';
+    $('dripNote').textContent = fmt(Math.round(eaveLF + rakeLF),0) + ' lin ft of edge';
+    $('nailNote').textContent = '~' + fmt(Math.round(nailCount),0) + ' nails / ' + fmt(nailLbs,1) + ' lb, 7,200 per box';
+
+    $('tip').innerHTML = shape === 'hip'
+      ? 'A hip roof has <b>no rake edges</b> but four hips to cap, so ridge-cap goes up and drip edge goes down versus a gable of the same footprint. Waste also runs higher — every hip is a cut.'
+      : (rise >= 8
+        ? 'At <b>' + rise + '/12</b> this is steep-slope work. Expect slower production, staging or roof jacks, and price the labour accordingly.'
+        : 'Bundles are rounded up whole — you cannot buy part of a bundle. Keep a few spares for repairs.');
+
+    $('assumpList').innerHTML = [
+      known
+        ? 'Roof area taken as entered — no pitch multiplier applied, since you told us the actual surface area.'
+        : 'Roof area = footprint ' + fmt(Math.round(L*W),0) + ' sq ft × ' + m.toFixed(3) + '. The multiplier is √(1 + (rise ÷ 12)²), which is how a ' + rise + '/12 pitch turns ground area into sloped surface area.',
+      'Squares = area plus ' + waste + '% waste, ÷ 100. One square is 100 sq ft of finished roof.',
+      'Shingles at ' + bundlesPerSq + ' bundles per square' + (shingleSel==='3t' ? ' (3-tab, ~80 shingles per square)' : shingleSel==='4' ? ' (premium)' : ' (architectural, ~64 shingles per square)') + '.',
+      shape === 'hip'
+        ? 'Hip geometry: ridge = length − width, plus four hips each measuring (width ÷ 2) × √(2 + (rise ÷ 12)²). Eaves run the full perimeter and there are no rakes.'
+        : shape === 'gable'
+          ? 'Gable geometry: ridge = the long side, eaves = both long sides, four rake edges each running (width ÷ 2) × the pitch multiplier.'
+          : 'Shed geometry: single slope, so no ridge or hips. Drip edge covers the low eave and both rakes.',
+      'Starter strip at 110 lin ft per bundle; ridge and hip cap at 20 lin ft per bundle (architectural profile — a cut-up 3-tab cap stretches further).',
+      'Ice and water shield as one 3 ft course along all eaves, at 200 sq ft per roll. Cold climates often require two courses — check your local code.',
+      'Underlayment figured on roof area without the waste factor, since it is rolled rather than cut to pattern.',
+      'Nails at 4 per shingle, about 140 per pound at 1¼", and 7,200 to a coil box. High-wind zones require 6 per shingle — add 50% if that applies.'
+    ].map(function(s){ return '<li>'+s+'</li>'; }).join('');
+
+    ph();
+  }
+
+  Array.prototype.forEach.call($('shapeSeg').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      shape = b.getAttribute('data-s');
+      Array.prototype.forEach.call($('shapeSeg').querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      $('waste').value = DEFAULT_WASTE[shape];
+      $('wasteHint').textContent = shape==='hip' ? '15% — hips are all cuts' : shape==='shed' ? '8% — simplest shape' : '10% simple gable';
+      recalc();
+    });
+  });
+
+  Array.prototype.forEach.call($('modeSeg').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      mode = b.getAttribute('data-m');
+      Array.prototype.forEach.call($('modeSeg').querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      $('footWrap').style.display = mode==='foot' ? '' : 'none';
+      $('areaWrap').style.display = mode==='area' ? '' : 'none';
+      // Pitch stays visible in both modes: even with a known area it still drives
+      // the ridge, hip, rake and drip-edge estimates.
+      $('pitchLabel').innerHTML = mode==='foot'
+        ? 'Roof pitch <span class="hint">rise per 12&quot; run</span>'
+        : 'Roof pitch <span class="hint">still used for edge lengths</span>';
+      recalc();
+    });
+  });
+
+  ['fL','fW','rArea','pitch','shingle','under','waste','pBundle','pUnder','pStart','pRidge','pDrip','pIce'].forEach(function(id){
+    $(id).addEventListener('input', recalc);
+    $(id).addEventListener('change', recalc);
+  });
+
+  $('resetBtn').addEventListener('click', function(){
+    ['fL','fW','rArea'].forEach(function(id){ $(id).value=''; });
+    $('pitch').value='4'; $('shingle').value='3'; $('under').value='1000'; $('waste').value=10;
+    $('pBundle').value=38; $('pUnder').value=110; $('pStart').value=45;
+    $('pRidge').value=60; $('pDrip').value=12; $('pIce').value=105;
+    recalc();
+  });
+
+  $('copyBtn').addEventListener('click', function(){
+    if($('oCost').textContent === '$0') return;
+    var lines = ['ROOFING MATERIALS — ' + $('oArea').textContent + ', ' + $('oSquares').textContent + ' squares', ''];
+    [['oBundles','shingle bundles'],['oUnder','underlayment rolls'],['oStart','starter bundles'],
+     ['oRidge','ridge/hip cap bundles'],['oDrip','drip edge pieces'],['oIce','ice & water rolls'],['oNails','roofing nails']]
+     .forEach(function(p){ if($(p[0]).textContent !== '0') lines.push($(p[0]).textContent + ' — ' + p[1]); });
+    lines.push('', 'Material total: ' + $('oCost').textContent);
+    lines.push('', 'Calculated at bigworks.app/tools/roof-shingle-calculator');
+    var txt = lines.join('\n'), btn = $('copyBtn');
+    function done(ok){ btn.textContent = ok?'Copied ✓':'Press ⌘C'; setTimeout(function(){btn.textContent='Copy list';},1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fb(txt,done);});
+    } else fb(txt,done);
+  });
+
+  function fb(txt,done){
+    var ta=document.createElement('textarea'); ta.value=txt;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); done(ok);
+  }
+
+  function ph(){ try{ parent.postMessage({bwigH: document.body.scrollHeight}, '*'); }catch(e){} }
+  window.addEventListener('load', ph);
+  if(window.ResizeObserver){ new ResizeObserver(ph).observe(document.body); }
+  document.addEventListener('input', function(){ setTimeout(ph,30); }, true);
+  document.addEventListener('click', function(){ setTimeout(ph,90); }, true);
+  setTimeout(ph, 350);
+
+  recalc();
+})();
+</script>
+</body>
+</html>
