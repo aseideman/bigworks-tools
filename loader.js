@@ -6,7 +6,9 @@
   // h = initial iframe height in px, before the tool posts its real height back.
   var CALCS = {
     "profit-margin-calculator": { f:"profit-margin-calculator.html", t:"BIG WORKS profit margin calculator", h:700 },
-    "fence-calculator":         { f:"fence-calculator.html",         t:"BIG WORKS fence calculator",         h:900 }
+    "fence-calculator":         { f:"fence-calculator.html",         t:"BIG WORKS fence calculator",         h:900 },
+    "sod-calculator":           { f:"sod-calculator.html",           t:"BIG WORKS sod calculator",           h:820 },
+    "tile-calculator":          { f:"tile-calculator.html",          t:"BIG WORKS tile calculator",          h:980 }
   };
 
   var src, title, h;

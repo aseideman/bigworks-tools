@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tile Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:14px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:46px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:15px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+  .big{font-size:44px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--yellow);font-variant-numeric:tabular-nums}
+  .big-sub{color:#B9B9C0;font-size:13px;margin-top:4px;margin-bottom:20px}
+  .stat{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #2A2A2E;font-size:14px;gap:12px}
+  .stat .lbl{color:#B9B9C0}
+  .stat .lbl small{display:block;color:#6E6E78;font-size:11px}
+  .stat .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .stat.tot{border-top:2px solid var(--yellow);margin-top:6px;padding-top:12px}
+  .stat.tot .val{font-size:20px;color:var(--yellow);font-weight:900}
+  .trowel{background:#1C1C1E;border-radius:var(--radius-sm);padding:11px 13px;margin-top:14px;font-size:12.5px;color:#B9B9C0;line-height:1.55}
+  .trowel b{color:var(--yellow)}
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ "}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+  .prices{margin-top:18px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Tile Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <div class="card">
+      <h2>Your surface</h2>
+      <p class="lede">Floor or wall — we'll work out tile, thinset and grout.</p>
+
+      <div class="field">
+        <div class="seg" id="surfSeg">
+          <button type="button" data-s="floor" class="on">Floor</button>
+          <button type="button" data-s="wall">Wall</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label id="dimLabel">Room size</label>
+        <div class="row2">
+          <div class="in-wrap"><input type="number" id="dA" class="hassfx" inputmode="decimal" min="0" step="0.1" placeholder="Length"><span class="sfx">ft</span></div>
+          <div class="in-wrap"><input type="number" id="dB" class="hassfx" inputmode="decimal" min="0" step="0.1" placeholder="Width"><span class="sfx">ft</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Deduct <span class="hint">doors, windows, tub, cabinets</span></label>
+        <div class="in-wrap"><input type="number" id="deduct" class="hassfx" inputmode="decimal" min="0" step="1" value="0"><span class="sfx">sq ft</span></div>
+      </div>
+
+      <div class="field">
+        <label>Tile size</label>
+        <select id="preset">
+          <option value="12x12">12&quot; × 12&quot;</option>
+          <option value="12x24" selected>12&quot; × 24&quot;</option>
+          <option value="6x24">6&quot; × 24&quot; (plank)</option>
+          <option value="18x18">18&quot; × 18&quot;</option>
+          <option value="24x24">24&quot; × 24&quot;</option>
+          <option value="4x4">4&quot; × 4&quot;</option>
+          <option value="3x6">3&quot; × 6&quot; (subway)</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+
+      <div class="field" id="customWrap" style="display:none">
+        <div class="row2">
+          <div class="in-wrap"><input type="number" id="tW" class="hassfx" inputmode="decimal" min="0.5" step="0.25" value="12"><span class="sfx">in</span></div>
+          <div class="in-wrap"><input type="number" id="tH" class="hassfx" inputmode="decimal" min="0.5" step="0.25" value="24"><span class="sfx">in</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Layout pattern</label>
+        <select id="pattern">
+          <option value="10" selected>Straight / stacked — 10% waste</option>
+          <option value="15">Diagonal — 15% waste</option>
+          <option value="18">Herringbone / chevron — 18% waste</option>
+          <option value="12">Offset / running bond — 12% waste</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Grout joint</label>
+        <div class="row2">
+          <select id="joint">
+            <option value="0.0625">1/16&quot;</option>
+            <option value="0.125">1/8&quot;</option>
+            <option value="0.1875" selected>3/16&quot;</option>
+            <option value="0.25">1/4&quot;</option>
+            <option value="0.375">3/8&quot;</option>
+          </select>
+          <select id="thick">
+            <option value="0.25">Tile 1/4&quot; thick</option>
+            <option value="0.375" selected>Tile 3/8&quot; thick</option>
+            <option value="0.5">Tile 1/2&quot; thick</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tiles per box</label>
+        <div class="in-wrap"><input type="number" id="perBox" inputmode="numeric" min="1" step="1" value="8"></div>
+      </div>
+
+      <div class="prices">
+        <h3>Your prices</h3>
+        <p class="note">Rough averages — swap in your supplier's numbers.</p>
+        <div class="pgrid">
+          <div class="field"><label>Per box of tile</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pBox" class="haspfx" inputmode="decimal" min="0" step="0.01" value="45"></div></div>
+          <div class="field"><label>Thinset (50 lb)</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pThin" class="haspfx" inputmode="decimal" min="0" step="0.01" value="18"></div></div>
+          <div class="field"><label>Grout (25 lb)</label>
+            <div class="in-wrap"><span class="pfx">$</span><input type="number" id="pGrout" class="haspfx" inputmode="decimal" min="0" step="0.01" value="24"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card result">
+      <div class="head">
+        <h2>What to order</h2>
+        <span class="sec" id="secCount">—</span>
+      </div>
+      <div class="body">
+        <div class="big num" id="rTiles">0</div>
+        <div class="big-sub" id="rTilesSub">tiles including waste</div>
+
+        <div class="stat"><span class="lbl">Area to tile<small>after deductions</small></span><span class="val num" id="rArea">0 sq ft</span></div>
+        <div class="stat"><span class="lbl">Boxes of tile<small id="boxNote">at 8 per box</small></span><span class="val num" id="rBoxes">0</span></div>
+        <div class="stat"><span class="lbl">Thinset<small id="thinNote">50 lb bags</small></span><span class="val num" id="rThin">0</span></div>
+        <div class="stat"><span class="lbl">Grout<small id="groutNote">25 lb bags</small></span><span class="val num" id="rGrout">0</span></div>
+        <div class="stat tot"><span class="lbl">Material total</span><span class="val num" id="rCost">$0</span></div>
+
+        <div class="trowel" id="trowelTip"></div>
+
+        <div class="warn" id="warn">Enter your room size to see what to order.</div>
+
+        <div class="actions">
+          <button class="btn-yellow" id="copyBtn" type="button">Copy list</button>
+        </div>
+
+        <details class="assump">
+          <summary>How we calculated this</summary>
+          <ul id="assumpList"></ul>
+        </details>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a>
+  </div>
+
+  <p class="disclaim">
+    Buy all your tile in one order and check the lot or batch number matches across every box — colour varies
+    noticeably between production runs, and a mid-job top-up rarely matches. Keep a spare box for future repairs.
+  </p>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var surf = 'floor';
+
+  function n(v){ v = parseFloat(v); return isFinite(v) && v > 0 ? v : 0; }
+  function money(v){ return '$' + Math.round(v||0).toLocaleString('en-US'); }
+  function fmt(v,d){ return (v||0).toLocaleString('en-US',{minimumFractionDigits:d||0,maximumFractionDigits:d||0}); }
+
+  function tileDims(){
+    var p = $('preset').value;
+    if(p === 'custom') return [n($('tW').value)||12, n($('tH').value)||12];
+    var parts = p.split('x');
+    return [parseFloat(parts[0]), parseFloat(parts[1])];
+  }
+
+  // Trowel choice + thinset coverage per 50 lb bag, driven by the tile's largest dimension
+  function trowelFor(maxDim){
+    if(maxDim <= 8)  return { name:'1/4" × 1/4" square notch', cov:95 };
+    if(maxDim <= 16) return { name:'1/4" × 3/8" square notch', cov:70 };
+    return { name:'1/2" × 1/2" square notch', cov:45 };
+  }
+
+  function recalc(){
+    var a = n($('dA').value), b = n($('dB').value);
+    var deduct = n($('deduct').value);
+    var wastePct = parseFloat($('pattern').value);
+    var joint = parseFloat($('joint').value);
+    var thick = parseFloat($('thick').value);
+    var perBox = Math.max(1, Math.round(n($('perBox').value) || 1));
+
+    var warn = $('warn');
+    warn.classList.remove('on');
+
+    var gross = a * b;
+    var area = Math.max(0, gross - deduct);
+
+    if(area <= 0){
+      warn.textContent = gross > 0 && deduct >= gross
+        ? 'Your deduction is larger than the surface. Check the numbers.'
+        : 'Enter your room size to see what to order.';
+      warn.classList.add('on');
+      ['rTiles','rArea','rBoxes','rThin','rGrout'].forEach(function(id){ $(id).textContent='0'; });
+      $('rCost').textContent = '$0';
+      $('secCount').textContent = '—';
+      $('trowelTip').innerHTML = '';
+      $('assumpList').innerHTML = '<li>Enter your measurements to see the math.</li>';
+      ph(); return;
+    }
+
+    var d = tileDims(), tw = d[0], th = d[1];
+    var tileSqft = (tw * th) / 144;
+    var maxDim = Math.max(tw, th);
+
+    var areaWithWaste = area * (1 + wastePct/100);
+    var tiles = Math.ceil(areaWithWaste / tileSqft);
+    var boxes = Math.ceil(tiles / perBox);
+
+    var tr = trowelFor(maxDim);
+    var thinBags = Math.ceil(area / tr.cov);
+
+    // Grout joint volume: cu in per sq ft = 144 * ((L+W) * joint * thickness) / (L*W)
+    // 0.11 lb per cu in is an effective figure calibrated against published manufacturer
+    // coverage charts (it folds in mixed density plus real-world yield loss). Straight dry
+    // density understates the bag count by roughly half.
+    var cuInPerSqft = 144 * ((tw + th) * joint * thick) / (tw * th);
+    var groutLbs = cuInPerSqft * 0.11 * area;
+    var groutBags = Math.max(1, Math.ceil(groutLbs / 25));
+
+    var cost = boxes * n($('pBox').value) + thinBags * n($('pThin').value) + groutBags * n($('pGrout').value);
+
+    $('rTiles').textContent = fmt(tiles,0);
+    $('rArea').textContent = fmt(Math.round(area),0) + ' sq ft';
+    $('rBoxes').textContent = fmt(boxes,0);
+    $('rThin').textContent = fmt(thinBags,0);
+    $('rGrout').textContent = fmt(groutBags,0);
+    $('rCost').textContent = money(cost);
+    $('secCount').textContent = tw + '" × ' + th + '" · ' + wastePct + '% waste';
+    $('boxNote').textContent = 'at ' + perBox + ' per box';
+    $('thinNote').textContent = '50 lb bags · ' + tr.cov + ' sq ft each';
+    $('groutNote').textContent = '25 lb bags · ~' + fmt(groutLbs,1) + ' lb needed';
+
+    $('trowelTip').innerHTML = 'Recommended trowel for ' + tw + '" × ' + th + '" tile: <b>' + tr.name + '</b>. ' +
+      (maxDim > 15 ? 'At this size you also want a large-format mortar and should back-butter every tile.' :
+                     'Comb the mortar in one direction so air can escape as you set.');
+
+    $('assumpList').innerHTML = [
+      'Surface: ' + fmt(Math.round(gross),0) + ' sq ft gross' + (deduct>0 ? ', less ' + fmt(deduct,0) + ' sq ft deducted' : '') + '.',
+      'Each tile covers ' + tileSqft.toFixed(3) + ' sq ft (' + tw + '" × ' + th + '" ÷ 144).',
+      'Waste of ' + wastePct + '% for the layout you picked. Diagonal and herringbone waste more because every edge tile is a cut. Add more on top for a small or oddly shaped room.',
+      'Thinset at ' + tr.cov + ' sq ft per 50 lb bag, based on a ' + tr.name + ' trowel for this tile size. Coverage drops on uneven substrate.',
+      'Grout from the standard joint-volume formula: 144 × ((L + W) × joint × thickness) ÷ (L × W) cubic inches per square foot, converted at a rate calibrated against published manufacturer coverage charts. Coverage varies by brand — check the chart on your bag before you buy.',
+      'Tile is rounded up to whole boxes — you cannot buy part of a box.'
+    ].map(function(s){ return '<li>'+s+'</li>'; }).join('');
+
+    ph();
+  }
+
+  Array.prototype.forEach.call($('surfSeg').querySelectorAll('button'), function(btn){
+    btn.addEventListener('click', function(){
+      surf = btn.getAttribute('data-s');
+      Array.prototype.forEach.call($('surfSeg').querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+      btn.classList.add('on');
+      $('dimLabel').textContent = surf === 'floor' ? 'Room size' : 'Wall size';
+      $('dA').placeholder = surf === 'floor' ? 'Length' : 'Width';
+      $('dB').placeholder = surf === 'floor' ? 'Width' : 'Height';
+      $('thick').value = surf === 'floor' ? '0.375' : '0.25';
+      recalc();
+    });
+  });
+
+  $('preset').addEventListener('change', function(){
+    $('customWrap').style.display = this.value === 'custom' ? '' : 'none';
+    recalc();
+  });
+
+  ['dA','dB','deduct','tW','tH','pattern','joint','thick','perBox','pBox','pThin','pGrout'].forEach(function(id){
+    $(id).addEventListener('input', recalc);
+    $(id).addEventListener('change', recalc);
+  });
+
+  $('resetBtn').addEventListener('click', function(){
+    ['dA','dB'].forEach(function(id){ $(id).value=''; });
+    $('deduct').value = 0; $('preset').value='12x24'; $('customWrap').style.display='none';
+    $('pattern').value='10'; $('joint').value='0.1875'; $('thick').value='0.375';
+    $('perBox').value=8; $('pBox').value=45; $('pThin').value=18; $('pGrout').value=24;
+    recalc();
+  });
+
+  $('copyBtn').addEventListener('click', function(){
+    if(n($('dA').value)*n($('dB').value) <= 0) return;
+    var d = tileDims();
+    var lines = ['TILE MATERIALS — ' + $('rArea').textContent + ', ' + d[0] + '" x ' + d[1] + '" tile', ''];
+    lines.push($('rTiles').textContent + ' tiles (' + $('rBoxes').textContent + ' boxes)');
+    lines.push($('rThin').textContent + ' x thinset, 50 lb');
+    lines.push($('rGrout').textContent + ' x grout, 25 lb');
+    lines.push('', 'Material total: ' + $('rCost').textContent);
+    lines.push('', 'Calculated at bigworks.app/tools/tile-calculator');
+    var txt = lines.join('\n'), btn = $('copyBtn');
+    function done(ok){ btn.textContent = ok?'Copied ✓':'Press ⌘C'; setTimeout(function(){btn.textContent='Copy list';},1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fb(txt,done);});
+    } else fb(txt,done);
+  });
+
+  function fb(txt,done){
+    var ta=document.createElement('textarea'); ta.value=txt;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); done(ok);
+  }
+
+  function ph(){ try{ parent.postMessage({bwigH: document.body.scrollHeight}, '*'); }catch(e){} }
+  window.addEventListener('load', ph);
+  if(window.ResizeObserver){ new ResizeObserver(ph).observe(document.body); }
+  document.addEventListener('input', function(){ setTimeout(ph,30); }, true);
+  document.addEventListener('click', function(){ setTimeout(ph,90); }, true);
+  setTimeout(ph, 350);
+
+  recalc();
+})();
+</script>
+</body>
+</html>

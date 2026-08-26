@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sod Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.05fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:14px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:42px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:15px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+
+  /* area rows */
+  .area{background:var(--surface);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;position:relative}
+  .area .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+  .area .top select{background:#fff;font-size:13px;padding:8px 10px;width:auto;flex:1}
+  .area .rm{background:transparent;color:var(--muted);font-size:18px;padding:2px 8px;font-weight:700;line-height:1;border-radius:6px}
+  .area .rm:hover{background:#E7E7EB;color:var(--ink)}
+  .dims{display:grid;gap:8px}
+  .dims.two{grid-template-columns:1fr 1fr}
+  .dims.one{grid-template-columns:1fr}
+  .dims input{background:#fff;font-size:15px;padding:10px 12px}
+  .area .sqft{margin-top:8px;font-size:12px;color:var(--muted);font-weight:700;text-align:right}
+  .addbtn{width:100%;background:var(--surface);color:var(--ink);border:1.5px dashed var(--line);border-radius:var(--radius-sm);padding:11px;font-weight:700;font-size:13px}
+  .addbtn:hover{background:#E7E7EB}
+
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+  .big{font-size:44px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--yellow);font-variant-numeric:tabular-nums}
+  .big-sub{color:#B9B9C0;font-size:13px;margin-top:4px;margin-bottom:20px}
+  .stat{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #2A2A2E;font-size:14px;gap:12px}
+  .stat .lbl{color:#B9B9C0}
+  .stat .lbl small{display:block;color:#6E6E78;font-size:11px}
+  .stat .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .stat.tot{border-top:2px solid var(--yellow);margin-top:6px;padding-top:12px}
+  .stat.tot .val{font-size:20px;color:var(--yellow);font-weight:900}
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ "}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Sod Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <div class="card">
+      <h2>Your lawn</h2>
+      <p class="lede">Break the yard into simple shapes. Add as many as you need.</p>
+
+      <div id="areas"></div>
+      <button class="addbtn" id="addBtn" type="button">+ Add another area</button>
+
+      <div class="field" style="margin-top:20px">
+        <label>Sod size</label>
+        <select id="pieceType">
+          <option value="2.67" selected>Standard piece — 16&quot; × 24&quot; (2.67 sq ft)</option>
+          <option value="8">Large slab — 24&quot; × 48&quot; (8 sq ft)</option>
+          <option value="10">Small roll — 24&quot; × 60&quot; (10 sq ft)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Pallet coverage <span class="hint">varies by farm</span></label>
+        <div class="in-wrap"><input type="number" id="pallet" class="hassfx" inputmode="decimal" min="1" step="1" value="500"><span class="sfx">sq ft</span></div>
+      </div>
+
+      <div class="field">
+        <label>Waste <span class="hint">cuts, shaping around beds</span></label>
+        <div class="in-wrap"><input type="number" id="waste" class="hassfx" inputmode="decimal" min="0" max="40" step="1" value="7"><span class="sfx">%</span></div>
+      </div>
+
+      <div class="field">
+        <label>Price per pallet <span class="hint">your supplier</span></label>
+        <div class="in-wrap"><span class="pfx">$</span><input type="number" id="ppp" class="haspfx" inputmode="decimal" min="0" step="1" value="425"></div>
+      </div>
+    </div>
+
+    <div class="card result">
+      <div class="head">
+        <h2>What to order</h2>
+        <span class="sec" id="secCount">—</span>
+      </div>
+      <div class="body">
+        <div class="big num" id="rSqft">0</div>
+        <div class="big-sub" id="rSqftSub">square feet including waste</div>
+
+        <div class="stat"><span class="lbl">Measured area<small>before waste</small></span><span class="val num" id="rBase">0 sq ft</span></div>
+        <div class="stat"><span class="lbl">Pieces of sod<small id="pieceNote">16&quot; × 24&quot;</small></span><span class="val num" id="rPieces">0</span></div>
+        <div class="stat"><span class="lbl">Pallets to order<small id="palNote">at 500 sq ft each</small></span><span class="val num" id="rPallets">0</span></div>
+        <div class="stat"><span class="lbl">Leftover on last pallet</span><span class="val num" id="rLeft">0 sq ft</span></div>
+        <div class="stat tot"><span class="lbl">Estimated cost</span><span class="val num" id="rCost">$0</span></div>
+
+        <div class="warn" id="warn">Add an area to see what to order.</div>
+
+        <div class="actions">
+          <button class="btn-yellow" id="copyBtn" type="button">Copy order</button>
+        </div>
+
+        <details class="assump">
+          <summary>How we calculated this</summary>
+          <ul id="assumpList"></ul>
+        </details>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a>
+  </div>
+
+  <p class="disclaim">
+    Sod is perishable — it should go down within 24 hours of delivery, sooner in summer heat.
+    Order once you have a confirmed install date, and confirm the pallet coverage with your farm before you buy,
+    because it varies by region and grass type.
+  </p>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var areas = [], nextId = 1;
+
+  var SHAPES = {
+    rect:     { name:'Rectangle',      fields:['Length (ft)','Width (ft)'],   calc:function(a,b){ return a*b; } },
+    circle:   { name:'Circle',         fields:['Diameter (ft)'],              calc:function(a){ return Math.PI*Math.pow(a/2,2); } },
+    triangle: { name:'Triangle',       fields:['Base (ft)','Height (ft)'],    calc:function(a,b){ return (a*b)/2; } },
+    exact:    { name:'Known sq ft',    fields:['Square feet'],                calc:function(a){ return a; } }
+  };
+
+  function n(v){ v = parseFloat(v); return isFinite(v) && v > 0 ? v : 0; }
+  function money(v){ return '$' + Math.round(v||0).toLocaleString('en-US'); }
+  function fmt(v, d){ return (v||0).toLocaleString('en-US',{minimumFractionDigits:d||0, maximumFractionDigits:d||0}); }
+
+  function addArea(shape){
+    areas.push({ id: nextId++, shape: shape || 'rect', a: '', b: '' });
+    render();
+  }
+  function removeArea(id){
+    areas = areas.filter(function(x){ return x.id !== id; });
+    if(!areas.length) addArea('rect'); else render();
+  }
+
+  function render(){
+    var host = $('areas'), html = '';
+    areas.forEach(function(ar, i){
+      var sh = SHAPES[ar.shape];
+      var opts = Object.keys(SHAPES).map(function(k){
+        return '<option value="'+k+'"'+(k===ar.shape?' selected':'')+'>'+SHAPES[k].name+'</option>';
+      }).join('');
+      html += '<div class="area" data-id="'+ar.id+'">'+
+        '<div class="top"><select class="shape">'+opts+'</select>'+
+        (areas.length>1 ? '<button class="rm" type="button" title="Remove">&times;</button>' : '')+'</div>'+
+        '<div class="dims '+(sh.fields.length>1?'two':'one')+'">'+
+          sh.fields.map(function(f,idx){
+            return '<input type="number" class="d'+idx+'" inputmode="decimal" min="0" step="0.1" placeholder="'+f+'" value="'+(idx===0?ar.a:ar.b)+'">';
+          }).join('')+
+        '</div>'+
+        '<div class="sqft">Area '+(i+1)+': <span class="num">'+fmt(areaSqft(ar),0)+'</span> sq ft</div>'+
+      '</div>';
+    });
+    host.innerHTML = html;
+
+    Array.prototype.forEach.call(host.querySelectorAll('.area'), function(el){
+      var id = parseInt(el.getAttribute('data-id'),10);
+      var ar = areas.filter(function(x){ return x.id===id; })[0];
+      el.querySelector('.shape').addEventListener('change', function(){
+        ar.shape = this.value; ar.b = ''; render(); recalc();
+      });
+      var d0 = el.querySelector('.d0'), d1 = el.querySelector('.d1');
+      if(d0) d0.addEventListener('input', function(){ ar.a = this.value; softUpdate(el, ar); recalc(); });
+      if(d1) d1.addEventListener('input', function(){ ar.b = this.value; softUpdate(el, ar); recalc(); });
+      var rm = el.querySelector('.rm');
+      if(rm) rm.addEventListener('click', function(){ removeArea(id); recalc(); });
+    });
+    recalc();
+  }
+
+  function softUpdate(el, ar){
+    el.querySelector('.sqft').innerHTML = 'Area ' + (areas.indexOf(ar)+1) + ': <span class="num">' + fmt(areaSqft(ar),0) + '</span> sq ft';
+  }
+
+  function areaSqft(ar){
+    var sh = SHAPES[ar.shape];
+    return sh.fields.length > 1 ? sh.calc(n(ar.a), n(ar.b)) : sh.calc(n(ar.a));
+  }
+
+  function recalc(){
+    var base = areas.reduce(function(s,ar){ return s + areaSqft(ar); }, 0);
+    var waste = n($('waste').value);
+    var pieceSize = parseFloat($('pieceType').value);
+    var pallet = n($('pallet').value) || 500;
+    var ppp = n($('ppp').value);
+
+    var warn = $('warn');
+    warn.classList.remove('on');
+
+    if(base <= 0){
+      warn.textContent = 'Add an area to see what to order.';
+      warn.classList.add('on');
+      ['rSqft','rBase','rPieces','rPallets','rLeft','rCost'].forEach(function(id){
+        $(id).textContent = (id==='rCost') ? '$0' : '0';
+      });
+      $('secCount').textContent = '—';
+      $('assumpList').innerHTML = '<li>Enter your measurements to see the math.</li>';
+      ph(); return;
+    }
+
+    var withWaste = base * (1 + waste/100);
+    var pieces = Math.ceil(withWaste / pieceSize);
+    var pallets = Math.ceil(withWaste / pallet);
+    var leftover = (pallets * pallet) - withWaste;
+    var cost = pallets * ppp;
+
+    $('rSqft').textContent = fmt(Math.ceil(withWaste),0);
+    $('rBase').textContent = fmt(Math.round(base),0) + ' sq ft';
+    $('rPieces').textContent = fmt(pieces,0);
+    $('rPallets').textContent = fmt(pallets,0);
+    $('rLeft').textContent = fmt(Math.max(0,Math.round(leftover)),0) + ' sq ft';
+    $('rCost').textContent = money(cost);
+    $('secCount').textContent = areas.length + ' area' + (areas.length===1?'':'s');
+
+    var pieceLabel = $('pieceType').options[$('pieceType').selectedIndex].text.split('—')[1] || '';
+    $('pieceNote').textContent = pieceLabel.trim();
+    $('palNote').textContent = 'at ' + fmt(pallet,0) + ' sq ft each';
+
+    $('assumpList').innerHTML = [
+      'Measured area: ' + fmt(Math.round(base),0) + ' sq ft across ' + areas.length + ' shape' + (areas.length===1?'':'s') + '.',
+      'Waste of ' + waste + '% added for cutting and shaping around beds and curves — 5–10% is typical for a straightforward yard, more if it is heavily curved.',
+      'Pieces figured at ' + pieceSize + ' sq ft each, then rounded up.',
+      'Pallets figured on total square feet, not piece count, because farms sell by coverage. Rounded up to the next full pallet.',
+      'Pallet coverage varies by farm and grass type — anywhere from 400 to 700 sq ft. Confirm yours before ordering.',
+      'Cost is pallets × your price per pallet. It does not include delivery, which is often billed separately.'
+    ].map(function(s){ return '<li>'+s+'</li>'; }).join('');
+
+    ph();
+  }
+
+  ['waste','pallet','ppp','pieceType'].forEach(function(id){
+    $(id).addEventListener('input', recalc);
+    $(id).addEventListener('change', recalc);
+  });
+
+  $('addBtn').addEventListener('click', function(){ addArea('rect'); });
+
+  $('resetBtn').addEventListener('click', function(){
+    areas = []; nextId = 1;
+    $('waste').value = 7; $('pallet').value = 500; $('ppp').value = 425;
+    $('pieceType').selectedIndex = 0;
+    addArea('rect');
+  });
+
+  $('copyBtn').addEventListener('click', function(){
+    var base = areas.reduce(function(s,ar){ return s + areaSqft(ar); }, 0);
+    if(base <= 0) return;
+    var lines = ['SOD ORDER', ''];
+    areas.forEach(function(ar,i){
+      lines.push('Area ' + (i+1) + ' (' + SHAPES[ar.shape].name + '): ' + fmt(Math.round(areaSqft(ar)),0) + ' sq ft');
+    });
+    lines.push('');
+    lines.push('Total with ' + n($('waste').value) + '% waste: ' + $('rSqft').textContent + ' sq ft');
+    lines.push('Pieces: ' + $('rPieces').textContent);
+    lines.push('Pallets to order: ' + $('rPallets').textContent);
+    lines.push('Estimated cost: ' + $('rCost').textContent + ' (excl. delivery)');
+    lines.push('', 'Calculated at bigworks.app/tools/sod-calculator');
+    var txt = lines.join('\n'), btn = $('copyBtn');
+    function done(ok){ btn.textContent = ok ? 'Copied ✓' : 'Press ⌘C'; setTimeout(function(){ btn.textContent='Copy order'; },1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fb(txt,done);});
+    } else fb(txt,done);
+  });
+
+  function fb(txt,done){
+    var ta=document.createElement('textarea'); ta.value=txt;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); done(ok);
+  }
+
+  function ph(){ try{ parent.postMessage({bwigH: document.body.scrollHeight}, '*'); }catch(e){} }
+  window.addEventListener('load', ph);
+  if(window.ResizeObserver){ new ResizeObserver(ph).observe(document.body); }
+  document.addEventListener('input', function(){ setTimeout(ph,30); }, true);
+  document.addEventListener('click', function(){ setTimeout(ph,90); }, true);
+  setTimeout(ph, 350);
+
+  addArea('rect');
+})();
+</script>
+</body>
+</html>
