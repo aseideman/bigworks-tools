@@ -9,31 +9,31 @@
     // Radius stays at the existing 8px on purpose: this change is about affordance,
     // not restyling. Icons follow the brand system's documented Lucide convention
     // (24x24, 2px stroke, round caps/joins) — see brand/design-system-readme.md.
-    '.bw-feat-why-card{position:relative;border:1.5px solid #E6E6EA;border-radius:8px;',
+    '.bw-feat-why-card[data-bwc]{position:relative;border:1.5px solid #E6E6EA;border-radius:8px;',
       'transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;',
       'text-decoration:none;overflow:hidden}',
-    '.bw-feat-why-card:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;',
+    '.bw-feat-why-card[data-bwc]:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;',
       'background:#FFC20F;transform:scaleX(0);transform-origin:left;transition:transform .18s ease}',
-    '.bw-feat-why-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.10);border-color:#D9D9DF}',
-    '.bw-feat-why-card:hover:before{transform:scaleX(1)}',
-    '.bw-feat-why-card:focus-visible{outline:3px solid #FFC20F;outline-offset:3px}',
+    '.bw-feat-why-card[data-bwc]:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.10);border-color:#D9D9DF}',
+    '.bw-feat-why-card[data-bwc]:hover:before{transform:scaleX(1)}',
+    '.bw-feat-why-card[data-bwc]:focus-visible{outline:3px solid #FFC20F;outline-offset:3px}',
 
     '.bwc-ico{width:44px;height:44px;border-radius:10px;background:#FFF4D6;color:#111114;',
       'display:flex;align-items:center;justify-content:center;margin-bottom:16px;',
       'transition:background .16s ease,color .16s ease}',
-    '.bw-feat-why-card:hover .bwc-ico{background:#FFC20F}',
+    '.bw-feat-why-card[data-bwc]:hover .bwc-ico{background:#FFC20F}',
     '.bwc-ico svg{width:23px;height:23px;display:block}',
 
     '.bwc-arrow{position:absolute;top:26px;right:26px;width:26px;height:26px;border-radius:50%;',
       'display:flex;align-items:center;justify-content:center;color:#A9A9B2;',
       'transition:color .16s ease,transform .16s ease,background .16s ease}',
     '.bwc-arrow svg{width:15px;height:15px;display:block}',
-    '.bw-feat-why-card:hover .bwc-arrow{color:#111114;transform:translate(3px,-3px)}',
+    '.bw-feat-why-card[data-bwc]:hover .bwc-arrow{color:#111114;transform:translate(3px,-3px)}',
 
     '@media (prefers-reduced-motion:reduce){',
-      '.bw-feat-why-card,.bw-feat-why-card:before,.bwc-ico,.bwc-arrow{transition:none}',
-      '.bw-feat-why-card:hover{transform:none}',
-      '.bw-feat-why-card:hover .bwc-arrow{transform:none}}',
+      '.bw-feat-why-card[data-bwc],.bw-feat-why-card[data-bwc]:before,.bwc-ico,.bwc-arrow{transition:none}',
+      '.bw-feat-why-card[data-bwc]:hover{transform:none}',
+      '.bw-feat-why-card[data-bwc]:hover .bwc-arrow{transform:none}}',
 
     '@media (max-width:479px){.bwc-arrow{top:20px;right:20px}.bwc-ico{width:38px;height:38px;border-radius:9px;margin-bottom:12px}.bwc-ico svg{width:20px;height:20px}}'
   ].join('');
@@ -120,6 +120,13 @@
 
     Array.prototype.forEach.call(cards, function (card) {
       if (card.getAttribute('data-bwc')) return;
+
+      // Only treat real links. The same class is reused for non-clickable FAQ
+      // cards on /pricing — giving those an arrow would imply navigation that
+      // does not exist. All styling is scoped to [data-bwc], so those stay as-is.
+      var href = card.getAttribute('href');
+      if (!href || href === '#') return;
+
       card.setAttribute('data-bwc', '1');
 
       var ico = document.createElement('div');
