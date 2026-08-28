@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Trade Demand Calendar | BIG WORKS</title>
+<style>
+  /* Single-theme by choice: this sits in an iframe on a light BIG WORKS page,
+     alongside 14 other tools that are all light. Every colour is painted
+     explicitly so the page holds on any host ground. */
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    /* sequential ramp — one hue, monotone L, brand yellow anchored at step 3 */
+    --s1:#FCE9C2; --s2:#F5D58F; --s3:#FFC20F; --s4:#DFA500;
+    --s5:#BC8B00; --s6:#966F00; --s7:#6F5100;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:13px;padding:9px 15px}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+
+  .wrap{max-width:980px;margin:0 auto;padding:24px 20px 56px;display:flex;flex-direction:column;gap:18px}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:24px 26px}
+
+  .hero{display:flex;flex-wrap:wrap;gap:18px;align-items:baseline;justify-content:space-between}
+  .hero h1{font-size:22px;font-weight:900;letter-spacing:-.02em;line-height:1.15}
+  .hero p{font-size:13.5px;color:var(--muted);margin-top:6px;max-width:60ch;line-height:1.55}
+  .statline{background:var(--black);color:#fff;border-radius:var(--radius-sm);padding:16px 20px;display:flex;
+    align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:16px}
+  .statline .big{font-size:34px;font-weight:900;color:var(--yellow);letter-spacing:-.03em;line-height:1}
+  .statline .txt{font-size:14px;color:#D6D6DC;line-height:1.5}
+
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar .seg{display:flex;background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .toolbar .seg button{background:transparent;color:var(--muted);border-radius:6px;padding:8px 13px}
+  .toolbar .seg button.on{background:var(--yellow);color:#000}
+  .spacer{flex:1}
+
+  h2.sec{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:3px}
+  p.sub{font-size:12.5px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+
+  /* ---- heatmap ---- */
+  .hm{display:grid;grid-template-columns:132px repeat(12,1fr);gap:2px;min-width:640px}
+  .hm .mh{font-size:10.5px;font-weight:700;color:var(--muted);text-align:center;padding-bottom:5px;letter-spacing:.02em}
+  .hm .rh{font-size:12.5px;font-weight:700;display:flex;align-items:center;padding-right:10px;white-space:nowrap}
+  .hm .cell{aspect-ratio:1/1;border-radius:3px;cursor:pointer;position:relative;transition:outline-color .12s}
+  .hm .cell:hover,.hm .cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px;z-index:2}
+  .hm .cell.pk{box-shadow:inset 0 0 0 2px var(--white),inset 0 0 0 3px var(--ink)}
+  .scroller{overflow-x:auto;padding-bottom:4px}
+
+  .legend{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:11.5px;color:var(--muted);font-weight:600}
+  .legend .ramp{display:flex;gap:2px}
+  .legend .ramp i{width:26px;height:11px;border-radius:2px;display:block}
+
+  /* ---- bars ---- */
+  .bars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:190px;margin-top:6px}
+  .bars .col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px;position:relative}
+  .bars .bar{border-radius:4px 4px 0 0;background:var(--s3);transition:background .12s;min-height:3px}
+  .bars .col.pk .bar{background:var(--s6)}
+  .bars .col.tr .bar{background:var(--s1);box-shadow:inset 0 0 0 1.5px var(--s2)}
+  .bars .col:hover .bar{background:var(--s5)}
+  .bars .lab{font-size:10.5px;color:var(--muted);text-align:center;font-weight:700}
+  .bars .col.pk .lab,.bars .col.tr .lab{color:var(--ink)}
+  .axis{border-top:1px solid var(--line);margin-top:0}
+
+  .callouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+  .co{background:var(--surface);border-radius:var(--radius-sm);padding:13px 15px}
+  .co .k{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .co .v{font-size:19px;font-weight:900;letter-spacing:-.02em;margin-top:3px}
+  .co .n{font-size:12px;color:var(--muted);margin-top:2px}
+
+  .advice{margin-top:16px;background:#FFF9E8;border:1px solid #F5DFA0;border-radius:var(--radius-sm);
+    padding:14px 16px;font-size:13.5px;line-height:1.6;color:#4A3B00}
+  .advice b{color:#2E2400}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left;font-weight:700}
+  thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+
+  #tip{position:fixed;pointer-events:none;background:var(--black);color:#fff;border-radius:8px;padding:9px 12px;
+    font-size:12.5px;line-height:1.45;opacity:0;transition:opacity .1s;z-index:50;max-width:230px;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+  #tip.on{opacity:1}
+  #tip b{color:var(--yellow)}
+
+  .foot{padding:16px 20px;background:var(--white);border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .src{font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media(max-width:640px){ .bars{height:150px} .hm{min-width:600px} }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Trade Demand Calendar<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="copyBtn" type="button">Copy summary</button>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="hero">
+      <div>
+        <h1>When does work actually come in for your trade?</h1>
+        <p>Twelve months of real US search demand for every major trade — when homeowners
+           go looking for you. Use it to time your advertising, your hiring, and your time off.</p>
+      </div>
+    </div>
+    <div class="statline">
+      <span class="big num">6 of 10</span>
+      <span class="txt">trades hit their slowest month in <b style="color:#fff">November</b>. It is the
+        quietest stretch of the year across the trades — and almost nobody plans for it.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div>
+        <h2 class="sec">Demand by month</h2>
+        <p class="sub" style="margin:0">Each row is stretched between its own quietest and busiest month, so you're reading <em>shape</em>, not size. Click any trade for detail.</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="seg" id="viewSeg">
+        <button type="button" data-v="heat" class="on">Heatmap</button>
+        <button type="button" data-v="table">Table</button>
+      </div>
+    </div>
+
+    <div id="heatWrap" class="scroller"><div class="hm" id="hm"></div></div>
+    <div id="tableWrap" style="display:none"></div>
+
+    <div class="legend" id="legend">
+      <span>Quietest</span>
+      <span class="ramp" id="ramp"></span>
+      <span>Busiest</span>
+      <span style="margin-left:10px;display:flex;align-items:center;gap:6px">
+        <span style="width:11px;height:11px;border-radius:2px;background:var(--s5);box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px var(--ink);display:inline-block"></span>
+        peak month
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div>
+        <h2 class="sec" id="detailTitle">Plumbers</h2>
+        <p class="sub" style="margin:0" id="detailSub">Search demand across the year, indexed to the busiest month.</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="seg" id="tradeSeg"></div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="axis"></div>
+    <div class="callouts" id="callouts"></div>
+    <div class="advice" id="advice"></div>
+  </div>
+
+  <div class="foot">
+    Quote the busy season, invoice it the same day — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a>
+  </div>
+
+  <p class="src">
+    Built from 12 months of US Google search volume (Aug 2025 – Jul 2026) for the hire-intent query
+    each trade actually gets found on. Search demand is a leading indicator of work, not a record of it —
+    it tells you when people start looking, which is usually a week or two ahead of the call.
+  </p>
+</div>
+
+<div id="tip"></div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Aug 2025 → Jul 2026, US, Google. Source: DataForSEO, pulled 2026-08-28.
+  var RAW = {
+    plumber:    {label:"Plumbers",         q:"plumber near me",           v:[673,823,823,550,823,1000,1220,823,823,673,823,823]},
+    electrician:{label:"Electricians",     q:"electrician near me",       v:[450,450,450,301,368,368,368,368,368,301,368,368]},
+    hvac:       {label:"HVAC",             q:"hvac repair",               v:[60.5,74,90.5,60.5,60.5,74,60.5,49.5,49.5,49.5,74,110]},
+    roofing:    {label:"Roofers",          q:"roof repair",               v:[90.5,110,90.5,74,110,60.5,60.5,74,60.5,60.5,60.5,74]},
+    painting:   {label:"Painters",         q:"painters near me",          v:[110,165,135,60.5,90.5,165,135,135,110,90.5,90.5,90.5]},
+    landscaping:{label:"Landscapers",      q:"landscaping near me",       v:[90.5,90.5,74,60.5,49.5,60.5,74,165,165,135,110,90.5]},
+    carpentry:  {label:"Carpenters",       q:"carpenter near me",         v:[18.1,18.1,18.1,14.8,12.1,14.8,12.1,18.1,14.8,18.1,18.1,14.8]},
+    handyman:   {label:"Handymen",         q:"handyman near me",          v:[135,135,110,90.5,90.5,110,110,135,135,110,135,110]},
+    gc:         {label:"Gen. contractors", q:"general contractor near me",v:[60.5,90.5,74,40.5,49.5,74,90.5,74,60.5,60.5,90.5,60.5]},
+    cleaning:   {label:"Cleaners",         q:"house cleaning service",    v:[90.5,90.5,110,60.5,74,74,74,90.5,74,74,74,110]}
+  };
+  // Raw arrays start at Aug; remap to Jan→Dec for a calendar read.
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var ORDER  = [5,6,7,8,9,10,11,0,1,2,3,4];
+  var RAMP   = ["--s1","--s2","--s3","--s4","--s5","--s6","--s7"];
+
+  var TRADES = {};
+  Object.keys(RAW).forEach(function(k){
+    var r = RAW[k];
+    var v = ORDER.map(function(i){ return r.v[i]; });
+    var hi = Math.max.apply(null,v), lo = Math.min.apply(null,v);
+    TRADES[k] = { key:k, label:r.label, q:r.q, v:v, hi:hi, lo:lo,
+                  pk:v.indexOf(hi), tr:v.indexOf(lo), swing:hi/lo,
+                  // pct = true share of peak — drives bar length and every label.
+                  pct:v.map(function(x){ return x/hi; }),
+                  // rel = stretched across this row's own min→max, for heatmap colour only.
+                  // Without it no trade dips below ~30% of peak and the light end of the
+                  // ramp never renders, so the shape reads flatter than it is.
+                  rel:v.map(function(x){ return hi === lo ? 1 : (x - lo) / (hi - lo); }) };
+  });
+  var KEYS = Object.keys(TRADES);
+  var current = "plumber";
+
+  // Guidance is written per trade — the shape of each curve implies a different move.
+  var ADVICE = {
+    plumber:"Your peak is <b>February</b>, not summer — burst pipes and cold-weather failures drive it. Demand climbs from January and holds high through spring. The move: be reachable in deep winter, and treat <b>November</b> as the month to catch up on maintenance contracts rather than chase new work.",
+    electrician:"One of the flattest curves in the trades — roughly <b>1.5× between best and worst</b>. That is a real advantage: you can plan headcount and cash flow without a seasonal swing. Late summer edges ahead; November dips. Steady enough that advertising spend can stay level year-round.",
+    hvac:"The sharpest split in the trades: you peak in <b>July</b> when air conditioning fails, with a secondary bump in January. <b>March through May is your trough</b> — that is the window to sell maintenance plans and pre-season tune-ups, because it is the only time you have spare capacity.",
+    roofing:"Demand is <b>storm-driven, not season-driven</b>. September and December both spike — hurricane season and winter storms. That makes your calendar less predictable than most, so keep capacity in reserve rather than booking solid; the work arrives in bursts you cannot forecast.",
+    painting:"Two peaks — <b>September</b> and <b>January</b>. The autumn one is exterior work before winter; the January one is interior work and new-year projects. <b>November collapses to a third of peak</b>, the steepest drop of any trade here. Book interior work ahead to bridge it.",
+    landscaping:"The most seasonal trade on the board at <b>3.3× swing</b>. March and April are everything; December is dead. That concentration means your year is effectively won or lost in about sixteen weeks — price accordingly, and use the winter trough for equipment, hiring and next-season contracts.",
+    carpentry:"Very stable — around <b>1.5× between peak and trough</b>, with no dramatic season. Demand nudges up in spring and late summer. Like electrical, that steadiness is worth something: predictable work is easier to staff and finance than feast-and-famine.",
+    handyman:"Steady and high all year — <b>1.5× swing</b>, with spring and late summer slightly ahead. Handyman work is the most recession- and season-resistant pattern in this dataset, because it is driven by small ongoing problems rather than big planned projects.",
+    gc:"Demand comes in <b>three bumps</b> — September, February and June — as homeowners plan projects around the shoulder seasons. <b>November is your floor</b> at under half of peak. Long lead times mean you should be marketing roughly two months ahead of each bump, not during it.",
+    cleaning:"Two clear peaks: <b>October</b> and <b>July</b>. The autumn one is pre-holiday deep cleans, the summer one is moves and turnovers. <b>November dips hard</b> right before the holidays — counter-intuitive, and worth a promotion to smooth out."
+  };
+
+  function rampColor(p){
+    var i = Math.min(RAMP.length-1, Math.max(0, Math.round(p * (RAMP.length-1))));
+    return "var(" + RAMP[i] + ")";
+  }
+
+  // ---------- tooltip ----------
+  var tip = $("tip");
+  function showTip(e, html){
+    tip.innerHTML = html; tip.classList.add("on");
+    var r = tip.getBoundingClientRect();
+    var x = Math.min(window.innerWidth - r.width - 10, Math.max(8, e.clientX + 14));
+    var y = Math.max(8, e.clientY - r.height - 12);
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip(){ tip.classList.remove("on"); }
+
+  // ---------- heatmap ----------
+  function drawHeat(){
+    var h = '<div></div>' + MONTHS.map(function(m){ return '<div class="mh">'+m+'</div>'; }).join('');
+    KEYS.forEach(function(k){
+      var t = TRADES[k];
+      h += '<div class="rh">'+t.label+'</div>';
+      t.rel.forEach(function(rp,i){
+        var p = t.pct[i];
+        h += '<div class="cell'+(i===t.pk?' pk':'')+'" tabindex="0" data-t="'+k+'" data-i="'+i+'" '+
+             'style="background:'+rampColor(rp)+'" aria-label="'+t.label+' '+MONTHS[i]+' '+Math.round(p*100)+'% of peak"></div>';
+      });
+    });
+    $("hm").innerHTML = h;
+    Array.prototype.forEach.call($("hm").querySelectorAll(".cell"), function(c){
+      function info(e){
+        var t = TRADES[c.dataset.t], i = +c.dataset.i;
+        showTip(e, "<b>"+t.label+" · "+MONTHS[i]+"</b><br>"+Math.round(t.pct[i]*100)+"% of their busiest month"+
+                   (i===t.pk?"<br>— peak":"")+(i===t.tr?"<br>— slowest":""));
+      }
+      c.addEventListener("mousemove", info);
+      c.addEventListener("mouseleave", hideTip);
+      c.addEventListener("focus", function(e){ info({clientX:c.getBoundingClientRect().left+20, clientY:c.getBoundingClientRect().top+20}); });
+      c.addEventListener("blur", hideTip);
+      c.addEventListener("click", function(){ select(c.dataset.t); });
+    });
+    $("ramp").innerHTML = RAMP.map(function(s){ return '<i style="background:var('+s+')"></i>'; }).join('');
+  }
+
+  function drawTable(){
+    var h = '<div class="scroller"><table><thead><tr><th>Trade</th>' +
+            MONTHS.map(function(m){ return '<th>'+m+'</th>'; }).join('') +
+            '<th>Peak</th><th>Swing</th></tr></thead><tbody>';
+    KEYS.forEach(function(k){
+      var t = TRADES[k];
+      h += '<tr><td>'+t.label+'</td>' + t.pct.map(function(p,i){
+        return '<td'+(i===t.pk?' style="font-weight:800"':'')+'>'+Math.round(p*100)+'</td>';
+      }).join('') + '<td style="font-weight:800">'+MONTHS[t.pk]+'</td><td>'+t.swing.toFixed(1)+'×</td></tr>';
+    });
+    $("tableWrap").innerHTML = h + '</tbody></table></div>' +
+      '<p class="sub" style="margin-top:10px">Values are percent of that trade\'s own busiest month.</p>';
+  }
+
+  // ---------- detail ----------
+  function drawDetail(){
+    var t = TRADES[current];
+    $("detailTitle").textContent = t.label;
+    $("detailSub").innerHTML = 'Based on searches for <b>“'+t.q+'”</b> — indexed to their busiest month.';
+
+    $("bars").innerHTML = t.pct.map(function(p,i){
+      var cls = i===t.pk ? " pk" : (i===t.tr ? " tr" : "");
+      return '<div class="col'+cls+'" data-i="'+i+'">'+
+             '<div class="bar" style="height:'+Math.max(3, p*100)+'%"></div>'+
+             '<div class="lab">'+MONTHS[i]+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call($("bars").querySelectorAll(".col"), function(c){
+      c.addEventListener("mousemove", function(e){
+        var i = +c.dataset.i;
+        showTip(e, "<b>"+MONTHS[i]+"</b><br>"+Math.round(t.pct[i]*100)+"% of peak"+
+                   (i===t.pk?"<br>— busiest month":"")+(i===t.tr?"<br>— slowest month":""));
+      });
+      c.addEventListener("mouseleave", hideTip);
+    });
+
+    $("callouts").innerHTML =
+      co("Busiest", MONTHS[t.pk], "peak demand") +
+      co("Slowest", MONTHS[t.tr], Math.round(t.lo/t.hi*100)+"% of peak") +
+      co("Swing", t.swing.toFixed(1)+"×", "peak vs trough") +
+      co("Steadiness", t.swing < 1.8 ? "Stable" : t.swing < 2.5 ? "Seasonal" : "Highly seasonal", "year-round pattern");
+
+    $("advice").innerHTML = ADVICE[current];
+
+    Array.prototype.forEach.call($("tradeSeg").querySelectorAll("button"), function(b){
+      b.classList.toggle("on", b.dataset.t === current);
+    });
+  }
+  function co(k,v,n){ return '<div class="co"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="n">'+n+'</div></div>'; }
+
+  function select(k){ current = k; drawDetail(); ph(); }
+
+  // ---------- chrome ----------
+  $("tradeSeg").innerHTML = KEYS.map(function(k){
+    return '<button type="button" data-t="'+k+'">'+TRADES[k].label.replace("Gen. contractors","GCs")+'</button>';
+  }).join('');
+  Array.prototype.forEach.call($("tradeSeg").querySelectorAll("button"), function(b){
+    b.addEventListener("click", function(){ select(b.dataset.t); });
+  });
+
+  Array.prototype.forEach.call($("viewSeg").querySelectorAll("button"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call($("viewSeg").querySelectorAll("button"), function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      var heat = b.dataset.v === "heat";
+      $("heatWrap").style.display = heat ? "" : "none";
+      $("tableWrap").style.display = heat ? "none" : "";
+      $("legend").style.display = heat ? "" : "none";
+      ph();
+    });
+  });
+
+  $("copyBtn").addEventListener("click", function(){
+    var lines = ["TRADE DEMAND CALENDAR — when work comes in, by trade", ""];
+    KEYS.forEach(function(k){
+      var t = TRADES[k];
+      lines.push(t.label + ": busiest " + MONTHS[t.pk] + ", slowest " + MONTHS[t.tr] + " (" + t.swing.toFixed(1) + "x swing)");
+    });
+    lines.push("", "6 of 10 trades are slowest in November.");
+    lines.push("US Google search demand, Aug 2025 - Jul 2026.");
+    lines.push("bigworks.app/tools/trade-demand-calendar");
+    var txt = lines.join("\n"), btn = $("copyBtn");
+    function done(ok){ btn.textContent = ok?"Copied ✓":"Press ⌘C"; setTimeout(function(){btn.textContent="Copy summary";},1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fb(txt,done);});
+    } else fb(txt,done);
+  });
+  function fb(txt,done){
+    var ta=document.createElement("textarea"); ta.value=txt;
+    ta.style.cssText="position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta); done(ok);
+  }
+
+  function ph(){ try{ parent.postMessage({bwigH: document.body.scrollHeight}, "*"); }catch(e){} }
+  window.addEventListener("load", ph);
+  if(window.ResizeObserver){ new ResizeObserver(ph).observe(document.body); }
+  window.addEventListener("scroll", hideTip, true);
+  setTimeout(ph, 350);
+
+  drawHeat(); drawTable(); drawDetail();
+})();
+</script>
+</body>
+</html>

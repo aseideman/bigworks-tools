@@ -9,7 +9,8 @@
     "fence-calculator":         { f:"fence-calculator.html",         t:"BIG WORKS fence calculator",         h:900 },
     "sod-calculator":           { f:"sod-calculator.html",           t:"BIG WORKS sod calculator",           h:820 },
     "tile-calculator":          { f:"tile-calculator.html",          t:"BIG WORKS tile calculator",          h:980 },
-    "roof-shingle-calculator":  { f:"roof-shingle-calculator.html",  t:"BIG WORKS roof shingle calculator",  h:1100 }
+    "roof-shingle-calculator":  { f:"roof-shingle-calculator.html",  t:"BIG WORKS roof shingle calculator",  h:1100 },
+    "trade-demand-calendar":    { f:"trade-demand-calendar.html",    t:"BIG WORKS trade demand calendar",    h:1750 }
   };
 
   // Material/volume calculators: one engine, many pages. slug -> ?material= preset.
