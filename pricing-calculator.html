@@ -275,6 +275,7 @@
   function n(v){v=parseFloat(v);return isFinite(v)&&v>0?v:0;}
   function money(v){if(!isFinite(v))v=0;return '$'+Math.round(v).toLocaleString('en-US');}
   function money2(v){if(!isFinite(v))v=0;return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function sing(u){ if(u.indexOf('hours')===0) return 'hour on site'; if(u==='eighths of a truck') return '1/8 truck'; if(u==='doors + drawers') return 'door or drawer'; return u.replace(/s$/,''); }
   function T(){return TRADES[$('trade').value];}
   function J(){return T().jobs[parseInt($('job').value,10)||0];}
   function applyTrade(){
@@ -285,7 +286,7 @@
   function applyJob(fresh){
     var j=J();$('qtyUnit').textContent=j.unit;$('qtyLabel').textContent='How much? ('+j.unit+')';
     $('prod').value=j.prod;$('prodUnit').textContent=j.unit.split(' ')[0]==='hours'?'':(j.unit+'/hr');$('prodHint').textContent='per person per hour';
-    $('rUnit').textContent='per '+j.unit.replace(/s$/,'').replace('eighths of a truck','1/8 truck');
+    $('rUnit').textContent='per '+sing(j.unit);
     if(fresh)$('qty').value='';$('mat').value='';recalc();
   }
   var last={};
@@ -311,7 +312,7 @@
     var floored=false;if(minc>0&&price<minc){price=minc;floored=true;}
     var per=price/qty;
     $('price').textContent=money(price);
-    $('perUnit').textContent=money2(per)+' per '+j.unit.replace(/s$/,'')+(isHours?'':' · about '+(Math.round(billableHrs*10)/10)+' hrs on the clock');
+    $('perUnit').textContent=money2(per)+' per '+sing(j.unit)+(isHours?'':' · about '+(Math.round(billableHrs*10)/10)+' hrs on the clock');
     $('secCount').textContent=t.label+' · '+j.name;
     // range bar
     var lo=j.range[0],hi=j.range[1],span=hi-lo,pad=span*0.6,axLo=Math.max(0,lo-pad),axHi=hi+pad;
@@ -349,7 +350,7 @@
     var url='https://www.bigworks.app/tools/estimate-generator?bwq='+b64u(JSON.stringify(lines));
     window.open(url,'_top');
   });
-  $('copyBtn').addEventListener('click',function(){if(!last.j)return;var l=[last.t.label.toUpperCase()+' — '+last.j.name+', '+last.qty+' '+last.j.unit,'','Labor: '+money(last.labor),'Materials (with markup): '+money(last.mat),'Fees: '+money(last.fees),'Overhead: '+money(last.overhead),'','PRICE: '+money(last.price)+'  ('+money2(last.per)+' per '+last.j.unit.replace(/s$/,'')+')','','Calculated at bigworks.app/tools/pricing-calculator'].join('\n');var btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy breakdown';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(l).then(function(){done(true);},function(){fb(l,done);});}else fb(l,done);});
+  $('copyBtn').addEventListener('click',function(){if(!last.j)return;var l=[last.t.label.toUpperCase()+' — '+last.j.name+', '+last.qty+' '+last.j.unit,'','Labor: '+money(last.labor),'Materials (with markup): '+money(last.mat),'Fees: '+money(last.fees),'Overhead: '+money(last.overhead),'','PRICE: '+money(last.price)+'  ('+money2(last.per)+' per '+sing(last.j.unit)+')','','Calculated at bigworks.app/tools/pricing-calculator'].join('\n');var btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy breakdown';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(l).then(function(){done(true);},function(){fb(l,done);});}else fb(l,done);});
   function fb(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
   $('resetBtn').addEventListener('click',function(){$('crew').value='1';$('setup').value='0.5';$('drive').value='30';$('matmk').value='20';$('fees').value='0';$('oh').value='15';$('margin').value='20';applyTrade();});
   function ph(){try{parent.postMessage({bwigH:document.body.scrollHeight},'*');}catch(e){}}
