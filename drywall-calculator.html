@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Drywall Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA; --success:#04DF13; --error:#D4183D;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:transform .05s,box-shadow .15s,background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:15px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number],input[type=text]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:44px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  /* right column */
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700;text-align:left;padding:0 0 8px}
+  thead th.r{text-align:right}
+  tbody td{padding:9px 0;border-top:1px solid #2A2A2E;vertical-align:top}
+  tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tbody td .spec{display:block;color:#8B8B94;font-size:11.5px;font-weight:500;margin-top:2px}
+  tbody tr.gate td{color:var(--yellow)}
+  .totrow td{border-top:2px solid var(--yellow);padding-top:12px;font-weight:800;font-size:15px}
+
+  .costcol{color:#B9B9C0}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid #2A2A2E}
+  .grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700}
+  .grand .val{font-size:32px;font-weight:900;color:var(--yellow);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:.02em;list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+
+  .prices{margin-top:20px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .foot a:hover{color:#000}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+<style>
+  .seg{display:flex;background:var(--surface);border-radius:var(--pill);padding:4px;gap:4px}
+  .seg button{flex:1;background:transparent;color:var(--muted);padding:9px 10px;font-size:13px}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .prices{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .prices h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pgrid .field{margin-bottom:0}
+  .result .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .result .sec{font-size:12px;font-weight:700;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:0 0 8px}
+  th.r,td.r{text-align:right}
+  td{padding:10px 0;border-top:1px solid var(--line);vertical-align:top}
+  td .spec{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  td.costcol{white-space:nowrap}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:14px;border-top:2px solid var(--ink)}
+  .grand .lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+  .grand .val{font-size:28px;font-weight:900;letter-spacing:-.02em}
+  .warn{display:none;background:#FFF6D6;color:#5A4300;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;font-weight:600;margin-top:12px}
+  .warn.on{display:block}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .assump{margin-top:18px;font-size:13px;color:var(--muted)}
+  .assump summary{cursor:pointer;font-weight:700;color:var(--ink)}
+  .assump ul{margin:10px 0 0 18px;line-height:1.5}
+  .foot{margin-top:22px;background:var(--black);color:#fff;border-radius:var(--radius);padding:18px 22px;font-size:14px;font-weight:600}
+  .foot a{color:var(--yellow);font-weight:800;text-decoration:none}
+  .disclaim{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Drywall Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+<div class="wrap"><div class="grid">
+  <div class="card">
+    <h2>The room</h2>
+    <p class="lede">Walls, ceiling or both. Openings come off the total.</p>
+    <div class="field"><label>What are you covering?</label>
+      <div class="seg" id="scopeSeg">
+        <button type="button" data-scope="both" class="on">Walls + ceiling</button>
+        <button type="button" data-scope="walls">Walls only</button>
+        <button type="button" data-scope="ceiling">Ceiling only</button>
+      </div></div>
+    <div class="field"><label>Room size <span class="hint">feet</span></label>
+      <div class="row3">
+        <div class="in-wrap"><input type="number" id="L" class="hassfx" inputmode="decimal" min="0" step="0.5" placeholder="12"><span class="sfx">L</span></div>
+        <div class="in-wrap"><input type="number" id="W" class="hassfx" inputmode="decimal" min="0" step="0.5" placeholder="14"><span class="sfx">W</span></div>
+        <div class="in-wrap"><input type="number" id="H" class="hassfx" inputmode="decimal" min="0" step="0.5" value="8"><span class="sfx">H</span></div>
+      </div></div>
+    <div class="field"><label>Openings <span class="hint">doors 21 sq ft, windows 15 sq ft each</span></label>
+      <div class="row2">
+        <div class="in-wrap"><input type="number" id="doors" class="hassfx" inputmode="numeric" min="0" step="1" value="1"><span class="sfx" style="font-size:12px">doors</span></div>
+        <div class="in-wrap"><input type="number" id="windows" class="hassfx" inputmode="numeric" min="0" step="1" value="1"><span class="sfx" style="font-size:12px">windows</span></div>
+      </div></div>
+    <div class="field"><label>Sheet size</label>
+      <div class="row2">
+        <select id="sheet"><option value="32">4 × 8 ft (32 sq ft)</option><option value="40">4 × 10 ft (40 sq ft)</option><option value="48">4 × 12 ft (48 sq ft)</option></select>
+        <select id="thick"><option value="0.5">½" standard</option><option value="0.625">⅝" fire-rated / ceiling</option></select>
+      </div></div>
+    <div class="field"><label>Outside corners <span class="hint">linear feet of corner bead</span></label>
+      <div class="in-wrap"><input type="number" id="corners" class="hassfx" inputmode="decimal" min="0" step="1" value="0"><span class="sfx">ft</span></div></div>
+    <div class="field"><label>Waste factor <span class="hint">cuts and breakage</span></label>
+      <div class="in-wrap"><input type="number" id="waste" class="hassfx" inputmode="decimal" min="0" max="50" step="1" value="10"><span class="sfx">%</span></div></div>
+    <div class="prices"><h3>Your prices</h3><p class="note">Rough national averages — swap in your supplier's numbers.</p><div class="pgrid" id="priceGrid"></div></div>
+  </div>
+  <div class="card result">
+    <div class="head"><h2>Materials list</h2><span class="sec" id="secCount">—</span></div>
+    <div class="body">
+      <table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Est. cost</th></tr></thead><tbody id="matBody"></tbody></table>
+      <div class="grand"><span class="lbl">Material total</span><span class="val num" id="grandTotal">$0</span></div>
+      <div class="warn" id="warn">Enter the room size to see the materials list.</div>
+      <div class="actions"><button class="btn-yellow" id="copyBtn" type="button">Copy list</button><button class="btn-ghost" id="shopBtn" type="button">Find it locally</button></div>
+      <details class="assump"><summary>How we calculated this</summary><ul id="assumpList"></ul></details>
+    </div>
+  </div>
+</div>
+<div class="foot">Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a></div>
+<p class="disclaim">Quantities are estimates for planning and bidding. Ceilings and garages attached to living space usually need ⅝" Type X by code, and moisture areas need moisture-resistant board — confirm with your local building department.</p>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var scope='both';
+  var PRICES={ sheet:{label:'Drywall sheet',val:15}, mud:{label:'Joint compound (4.5 gal)',val:18}, tape:{label:'Paper tape (500 ft)',val:5}, screws:{label:'Screws (1 lb box)',val:8}, bead:{label:'Corner bead (8 ft)',val:4} };
+  (function(){var g=$('priceGrid'),h='';Object.keys(PRICES).forEach(function(k){h+='<div class="field"><label>'+PRICES[k].label+'</label><div class="in-wrap"><span class="pfx">$</span><input type="number" class="haspfx price-in" data-k="'+k+'" inputmode="decimal" min="0" step="0.01" value="'+PRICES[k].val+'"></div></div>';});g.innerHTML=h;Array.prototype.forEach.call(g.querySelectorAll('.price-in'),function(el){el.addEventListener('input',recalc);});})();
+  function n(v){v=parseFloat(v);return isFinite(v)&&v>0?v:0;}
+  function ni(v){return Math.max(0,Math.round(n(v)));}
+  function money(v){if(!isFinite(v))v=0;return '$'+Math.round(v).toLocaleString('en-US');}
+  function price(k){var el=document.querySelector('.price-in[data-k="'+k+'"]');return el?n(el.value):PRICES[k].val;}
+  var lastRows=[],lastHead='';
+  function recalc(){
+    var L=n($('L').value),W=n($('W').value),H=n($('H').value)||8;
+    var doors=ni($('doors').value),windows=ni($('windows').value);
+    var sheet=n($('sheet').value)||32, thick=$('thick').value, corners=n($('corners').value), waste=n($('waste').value);
+    var warn=$('warn');warn.classList.remove('on');
+    var need=(scope==='ceiling')?(L>0&&W>0):(scope==='walls'?(L>0&&W>0):(L>0&&W>0));
+    if(!need){warn.textContent='Enter the room length and width to see the materials list.';warn.classList.add('on');$('matBody').innerHTML='';$('grandTotal').textContent='$0';$('secCount').textContent='—';$('assumpList').innerHTML='<li>Enter a room size to see the math.</li>';lastRows=[];ph();return;}
+    var wallArea=(scope==='ceiling')?0:2*(L+W)*H;
+    var ceilArea=(scope==='walls')?0:L*W;
+    var openings=(scope==='ceiling')?0:(doors*21+windows*15);
+    var net=Math.max(0,wallArea+ceilArea-openings);
+    var gross=net*(1+waste/100);
+    var sheets=Math.ceil(gross/sheet);
+    // Compound: ~0.053 lb per sq ft for a three-coat finish; a 4.5 gal bucket is 61.7 lb.
+    var mudLb=net*0.053, buckets=Math.ceil(mudLb/61.7);
+    // Tape: about 1 linear ft per sq ft of board is the standard estimator figure (joints + inside corners).
+    var tapeFt=net*1.0, tapeRolls=Math.ceil(tapeFt/500);
+    // Screws: 32 per 4x8 sheet at 16" o.c. framing = 1 per sq ft; ~300 #6 x 1-1/4" per lb.
+    var screws=Math.ceil(sheets*sheet), boxes=Math.ceil(screws/300);
+    var beadSticks=corners>0?Math.ceil(corners/8):0;
+    var rows=[],total=0;
+    function add(item,spec,qty,unit){var c=qty*unit;total+=c;rows.push({item:item,spec:spec,qty:qty,cost:c});}
+    add('Drywall sheets',(thick==='0.625'?'⅝"':'½"')+' × 4 × '+(sheet/4)+' ft — '+net.toLocaleString('en-US',{maximumFractionDigits:0})+' sq ft net + '+waste+'% waste',sheets,price('sheet'));
+    add('Joint compound','All-purpose, 4.5 gal buckets — ~'+Math.round(mudLb)+' lb for three coats',buckets,price('mud'));
+    add('Paper tape','500 ft rolls — ~'+Math.round(tapeFt)+' ft of joints and corners',tapeRolls,price('tape'));
+    add('Drywall screws','#6 × 1¼" coarse — ~'+screws.toLocaleString('en-US')+' screws',boxes,price('screws'));
+    if(beadSticks>0) add('Corner bead','8 ft sticks for '+corners+' ft of outside corners',beadSticks,price('bead'));
+    var h='';rows.forEach(function(r){h+='<tr><td>'+r.item+'<span class="spec">'+r.spec+'</span></td><td class="r">'+r.qty.toLocaleString('en-US')+'</td><td class="r costcol">'+money(r.cost)+'</td></tr>';});
+    $('matBody').innerHTML=h;$('grandTotal').textContent=money(total);
+    $('secCount').textContent=net.toLocaleString('en-US',{maximumFractionDigits:0})+' sq ft net';
+    $('assumpList').innerHTML=[
+      (scope!=='ceiling'?'Walls: 2 × ('+L+' + '+W+') × '+H+' ft = '+Math.round(wallArea)+' sq ft.':'Walls not included.'),
+      (scope!=='walls'?'Ceiling: '+L+' × '+W+' = '+Math.round(ceilArea)+' sq ft.':'Ceiling not included.'),
+      'Openings: '+doors+' doors at 21 sq ft and '+windows+' windows at 15 sq ft = '+openings+' sq ft removed. Small openings are usually cut from a full sheet anyway, which is what the waste factor is for.',
+      'Sheets: '+Math.round(net)+' sq ft × (1 + '+waste+'%) ÷ '+sheet+' sq ft per sheet, rounded up once at the end — not per wall.',
+      'Compound at 0.053 lb per sq ft for tape coat, fill coat and finish coat; 61.7 lb per 4.5 gal bucket.',
+      'Tape at roughly 1 ft per sq ft of board, the standard estimator figure for joints plus inside corners.',
+      'Screws at 32 per 4 × 8 sheet on 16" centres (about 1 per sq ft), 300 per 1 lb box.',
+      'Corner bead only where you enter outside corners — most rooms have none.'
+    ].map(function(a){return '<li>'+a+'</li>';}).join('');
+    lastRows=rows;lastHead='DRYWALL — '+L+' × '+W+' × '+H+' ft, '+Math.round(net)+' sq ft net';ph();
+  }
+  Array.prototype.forEach.call($('scopeSeg').querySelectorAll('button'),function(b){b.addEventListener('click',function(){scope=b.getAttribute('data-scope');Array.prototype.forEach.call($('scopeSeg').querySelectorAll('button'),function(x){x.classList.remove('on');});b.classList.add('on');recalc();});});
+  ['L','W','H','doors','windows','sheet','thick','corners','waste'].forEach(function(id){$(id).addEventListener('input',recalc);$(id).addEventListener('change',recalc);});
+  $('copyBtn').addEventListener('click',function(){if(!lastRows.length)return;var lines=[lastHead,''];lastRows.forEach(function(r){lines.push(r.qty+' × '+r.item+'  ('+r.spec+')  '+money(r.cost));});lines.push('','Material total: '+$('grandTotal').textContent,'','Calculated at bigworks.app/tools/drywall-calculator');var txt=lines.join('\n'),btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy list';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fallback(txt,done);});}else fallback(txt,done);});
+  function fallback(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+  $('shopBtn').addEventListener('click',function(){window.open('https://www.homedepot.com/s/'+encodeURIComponent('drywall sheets joint compound'),'_blank','noopener');});
+  $('resetBtn').addEventListener('click',function(){$('L').value='';$('W').value='';$('H').value='8';$('doors').value='1';$('windows').value='1';$('sheet').value='32';$('thick').value='0.5';$('corners').value='0';$('waste').value='10';recalc();});
+  function ph(){try{parent.postMessage({bwigH:document.body.scrollHeight},'*');}catch(e){}}
+  window.addEventListener('load',ph);if(window.ResizeObserver){new ResizeObserver(ph).observe(document.body);}
+  document.addEventListener('input',function(){setTimeout(ph,30);},true);document.addEventListener('click',function(){setTimeout(ph,90);},true);setTimeout(ph,350);
+  recalc();
+})();
+</script>
+</body>
+</html>

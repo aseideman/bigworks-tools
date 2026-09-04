@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Board Foot Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA; --success:#04DF13; --error:#D4183D;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:transform .05s,box-shadow .15s,background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:15px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number],input[type=text]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:44px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  /* right column */
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700;text-align:left;padding:0 0 8px}
+  thead th.r{text-align:right}
+  tbody td{padding:9px 0;border-top:1px solid #2A2A2E;vertical-align:top}
+  tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tbody td .spec{display:block;color:#8B8B94;font-size:11.5px;font-weight:500;margin-top:2px}
+  tbody tr.gate td{color:var(--yellow)}
+  .totrow td{border-top:2px solid var(--yellow);padding-top:12px;font-weight:800;font-size:15px}
+
+  .costcol{color:#B9B9C0}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid #2A2A2E}
+  .grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700}
+  .grand .val{font-size:32px;font-weight:900;color:var(--yellow);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:.02em;list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+
+  .prices{margin-top:20px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .foot a:hover{color:#000}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+<style>
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lrow{background:var(--surface);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px}
+  .lrow .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+  .lrow .top select{background:#fff;font-size:13px;padding:8px 10px;flex:1}
+  .lrow .rm{background:transparent;color:var(--muted);font-size:18px;padding:2px 8px;font-weight:700;line-height:1;border-radius:6px}
+  .lrow .rm:hover{background:#E7E7EB;color:var(--ink)}
+  .dims{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+  .dims input{background:#fff;font-size:14px;padding:10px 10px}
+  .dims label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px}
+  .lrow .bf{margin-top:8px;font-size:12px;color:var(--muted);font-weight:700;text-align:right}
+  .addbtn{width:100%;background:#fff;border:1.5px dashed var(--line);color:var(--ink);border-radius:var(--radius-sm);padding:11px;font-size:13px}
+  .addbtn:hover{border-color:var(--yellow)}
+  .result .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .result .sec{font-size:12px;font-weight:700;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:0 0 8px}
+  th.r,td.r{text-align:right}
+  td{padding:10px 0;border-top:1px solid var(--line);vertical-align:top}
+  td .spec{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:14px;border-top:2px solid var(--ink)}
+  .grand .lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+  .grand .val{font-size:28px;font-weight:900;letter-spacing:-.02em}
+  .big{display:flex;gap:14px;margin-bottom:14px}
+  .big div{flex:1;background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px}
+  .big .k{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .big .v{font-size:24px;font-weight:900;letter-spacing:-.02em;margin-top:2px}
+  .warn{display:none;background:#FFF6D6;color:#5A4300;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;font-weight:600;margin-top:12px}
+  .warn.on{display:block}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .assump{margin-top:18px;font-size:13px;color:var(--muted)}
+  .assump summary{cursor:pointer;font-weight:700;color:var(--ink)}
+  .assump ul{margin:10px 0 0 18px;line-height:1.5}
+  .ref{margin-top:18px;font-size:13px}
+  .ref summary{cursor:pointer;font-weight:700}
+  .ref table{margin-top:10px;font-size:13px}
+  .foot{margin-top:22px;background:var(--black);color:#fff;border-radius:var(--radius);padding:18px 22px;font-size:14px;font-weight:600}
+  .foot a{color:var(--yellow);font-weight:800;text-decoration:none}
+  .disclaim{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Board Foot Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+<div class="wrap"><div class="grid">
+  <div class="card">
+    <h2>Your lumber</h2>
+    <p class="lede">Add each size you're buying. Thickness and width in inches, length in feet.</p>
+    <div id="rows"></div>
+    <button type="button" class="addbtn" id="addBtn">+ Add another size</button>
+    <div class="field" style="margin-top:16px"><label>Price per board foot <span class="hint">applies to rows without their own price</span></label>
+      <div class="in-wrap"><span class="pfx">$</span><input type="number" id="gprice" class="haspfx" inputmode="decimal" min="0" step="0.05" value="4.50"></div></div>
+    <div class="field"><label>Waste factor <span class="hint">defects, cuts, sorting</span></label>
+      <div class="in-wrap"><input type="number" id="waste" class="hassfx" inputmode="decimal" min="0" max="50" step="1" value="15"><span class="sfx">%</span></div></div>
+  </div>
+  <div class="card result">
+    <div class="head"><h2>Board feet</h2><span class="sec" id="secCount">—</span></div>
+    <div class="body">
+      <div class="big"><div><div class="k">Net board feet</div><div class="v num" id="bfNet">0</div></div><div><div class="k">Buy (with waste)</div><div class="v num" id="bfBuy">0</div></div></div>
+      <table><thead><tr><th>Size</th><th class="r">BF each</th><th class="r">Total BF</th><th class="r">Cost</th></tr></thead><tbody id="matBody"></tbody></table>
+      <div class="grand"><span class="lbl">Lumber total</span><span class="val num" id="grandTotal">$0</span></div>
+      <div class="warn" id="warn">Add a size to see the board feet.</div>
+      <div class="actions"><button class="btn-yellow" id="copyBtn" type="button">Copy list</button></div>
+      <details class="assump"><summary>How we calculated this</summary><ul id="assumpList"></ul></details>
+      <details class="ref"><summary>Quick reference: common sizes</summary>
+        <table><thead><tr><th>Nominal</th><th class="r">8 ft</th><th class="r">10 ft</th><th class="r">12 ft</th><th class="r">16 ft</th></tr></thead><tbody id="refBody"></tbody></table>
+      </details>
+    </div>
+  </div>
+</div>
+<div class="foot">Turn this into a priced estimate your customer can approve — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a></div>
+<p class="disclaim">Board feet are figured on <strong>nominal</strong> dimensions, which is how lumber is sold and priced. A 2×4 is counted as 2" × 4" even though it measures 1½" × 3½". Hardwood is usually sold in quarters of an inch of thickness: 4/4 is 1", 5/4 is 1¼", 6/4 is 1½", 8/4 is 2".</p>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var COMMON=[['1x4',1,4],['1x6',1,6],['1x8',1,8],['1x12',1,12],['2x4',2,4],['2x6',2,6],['2x8',2,8],['2x10',2,10],['2x12',2,12],['4x4',4,4],['6x6',6,6],['4/4 hardwood',1,null],['5/4 hardwood',1.25,null],['6/4 hardwood',1.5,null],['8/4 hardwood',2,null]];
+  function n(v){v=parseFloat(v);return isFinite(v)&&v>0?v:0;}
+  function money(v){if(!isFinite(v))v=0;return '$'+Math.round(v).toLocaleString('en-US');}
+  function f1(v){return (Math.round(v*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});}
+  var rowId=0;
+  function addRow(t,w,l,q){
+    var id=++rowId, d=document.createElement('div'); d.className='lrow'; d.setAttribute('data-id',id);
+    var opts='<option value="">Custom size</option>'+COMMON.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>';}).join('');
+    d.innerHTML='<div class="top"><select class="preset">'+opts+'</select><button type="button" class="rm" title="Remove">×</button></div>'+
+      '<div class="dims"><div><label>Thick in</label><input type="number" class="t" inputmode="decimal" min="0" step="0.25" value="'+(t||'')+'"></div>'+
+      '<div><label>Wide in</label><input type="number" class="w" inputmode="decimal" min="0" step="0.25" value="'+(w||'')+'"></div>'+
+      '<div><label>Long ft</label><input type="number" class="l" inputmode="decimal" min="0" step="0.5" value="'+(l||'')+'"></div>'+
+      '<div><label>Pieces</label><input type="number" class="q" inputmode="numeric" min="0" step="1" value="'+(q||1)+'"></div></div>'+
+      '<div class="dims" style="grid-template-columns:1fr;margin-top:8px"><div><label>Price per BF (optional)</label><input type="number" class="p" inputmode="decimal" min="0" step="0.05" placeholder="uses the price below"></div></div>'+
+      '<div class="bf">0 board feet</div>';
+    $('rows').appendChild(d);
+    d.querySelector('.preset').addEventListener('change',function(){var c=COMMON[this.value];if(!c)return;d.querySelector('.t').value=c[1];if(c[2])d.querySelector('.w').value=c[2];recalc();});
+    d.querySelector('.rm').addEventListener('click',function(){d.remove();recalc();});
+    Array.prototype.forEach.call(d.querySelectorAll('input'),function(i){i.addEventListener('input',recalc);});
+    recalc();
+  }
+  var lastRows=[];
+  function recalc(){
+    var g=n($('gprice').value),waste=n($('waste').value),rows=[],net=0,total=0;
+    Array.prototype.forEach.call($('rows').querySelectorAll('.lrow'),function(d){
+      var t=n(d.querySelector('.t').value),w=n(d.querySelector('.w').value),l=n(d.querySelector('.l').value),q=Math.round(n(d.querySelector('.q').value)),p=n(d.querySelector('.p').value)||g;
+      var each=t*w*l/12, tot=each*q;
+      d.querySelector('.bf').textContent=(tot>0?f1(tot):'0')+' board feet'+(q>1&&each>0?' ('+f1(each)+' each)':'');
+      if(tot<=0)return;
+      net+=tot; var cost=tot*(1+waste/100)*p; total+=cost;
+      rows.push({item:f1(t)+'" × '+f1(w)+'" × '+f1(l)+' ft',spec:q+' piece'+(q===1?'':'s')+' at $'+f1(p)+'/BF',each:each,tot:tot,cost:cost});
+    });
+    var warn=$('warn');warn.classList.remove('on');
+    if(!rows.length){warn.classList.add('on');$('matBody').innerHTML='';$('grandTotal').textContent='$0';$('bfNet').textContent='0';$('bfBuy').textContent='0';$('secCount').textContent='—';$('assumpList').innerHTML='<li>Add a size to see the math.</li>';lastRows=[];ph();return;}
+    var buy=Math.ceil(net*(1+waste/100));
+    $('bfNet').textContent=f1(net);$('bfBuy').textContent=buy.toLocaleString('en-US');
+    $('matBody').innerHTML=rows.map(function(r){return '<tr><td>'+r.item+'<span class="spec">'+r.spec+'</span></td><td class="r">'+f1(r.each)+'</td><td class="r">'+f1(r.tot)+'</td><td class="r">'+money(r.cost)+'</td></tr>';}).join('');
+    $('grandTotal').textContent=money(total);$('secCount').textContent=rows.length+' size'+(rows.length===1?'':'s');
+    $('assumpList').innerHTML=['Board feet = thickness (in) × width (in) × length (ft) ÷ 12, on nominal dimensions.','Net total is what the job needs; the buy figure adds '+waste+'% for defects, cuts and sorting, rounded up once at the end.','Cost = board feet × (1 + waste) × price per board foot. Rows with their own price use it; the rest use the price below the list.','Fractions of an inch are fine — 5/4 stock is 1.25.'].map(function(a){return '<li>'+a+'</li>';}).join('');
+    lastRows=rows;ph();
+  }
+  $('refBody').innerHTML=COMMON.filter(function(c){return c[2];}).map(function(c){return '<tr><td>'+c[0]+'</td>'+[8,10,12,16].map(function(L){return '<td class="r">'+f1(c[1]*c[2]*L/12)+'</td>';}).join('')+'</tr>';}).join('');
+  $('addBtn').addEventListener('click',function(){addRow('','','',1);});
+  ['gprice','waste'].forEach(function(id){$(id).addEventListener('input',recalc);});
+  $('copyBtn').addEventListener('click',function(){if(!lastRows.length)return;var lines=['LUMBER — '+$('bfNet').textContent+' board feet net, buy '+$('bfBuy').textContent,''];lastRows.forEach(function(r){lines.push(r.item+'  '+r.spec+'  '+f1(r.tot)+' BF  '+money(r.cost));});lines.push('','Lumber total: '+$('grandTotal').textContent,'','Calculated at bigworks.app/tools/board-foot-calculator');var txt=lines.join('\n'),btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy list';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fb(txt,done);});}else fb(txt,done);});
+  function fb(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+  $('resetBtn').addEventListener('click',function(){$('rows').innerHTML='';$('gprice').value='4.50';$('waste').value='15';addRow(2,4,8,10);});
+  function ph(){try{parent.postMessage({bwigH:document.body.scrollHeight},'*');}catch(e){}}
+  window.addEventListener('load',ph);if(window.ResizeObserver){new ResizeObserver(ph).observe(document.body);}
+  document.addEventListener('input',function(){setTimeout(ph,30);},true);document.addEventListener('click',function(){setTimeout(ph,90);},true);setTimeout(ph,350);
+  addRow(2,4,8,10);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pricing Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA; --success:#04DF13; --error:#D4183D;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:transform .05s,box-shadow .15s,background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:15px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number],input[type=text]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:44px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  /* right column */
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700;text-align:left;padding:0 0 8px}
+  thead th.r{text-align:right}
+  tbody td{padding:9px 0;border-top:1px solid #2A2A2E;vertical-align:top}
+  tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tbody td .spec{display:block;color:#8B8B94;font-size:11.5px;font-weight:500;margin-top:2px}
+  tbody tr.gate td{color:var(--yellow)}
+  .totrow td{border-top:2px solid var(--yellow);padding-top:12px;font-weight:800;font-size:15px}
+
+  .costcol{color:#B9B9C0}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid #2A2A2E}
+  .grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700}
+  .grand .val{font-size:32px;font-weight:900;color:var(--yellow);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:.02em;list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+
+  .prices{margin-top:20px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .foot a:hover{color:#000}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+<style>
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sect{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .sect h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;color:var(--ink)}
+  .sect h3 .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .result .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .result .sec{font-size:12px;font-weight:700;color:var(--muted)}
+  .hero{background:var(--black);color:#fff;border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:14px}
+  .hero .k{font-size:11px;font-weight:700;color:#B9B9C0;text-transform:uppercase;letter-spacing:.06em}
+  .hero .v{font-size:40px;font-weight:900;letter-spacing:-.03em;color:var(--yellow);line-height:1.1;margin-top:2px}
+  .hero .u{font-size:14px;font-weight:700;color:#fff;margin-top:6px}
+  .range{margin:12px 0 4px}
+  .range .lbls{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .range .bar{position:relative;height:10px;background:var(--surface);border-radius:var(--pill);margin:6px 0}
+  .range .bar .band{position:absolute;top:0;bottom:0;background:#DCDCE2;border-radius:var(--pill)}
+  .range .bar .you{position:absolute;top:-5px;width:20px;height:20px;border-radius:50%;background:var(--yellow);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translateX(-50%)}
+  .range .note{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:0 0 8px}
+  th.r,td.r{text-align:right}
+  td{padding:9px 0;border-top:1px solid var(--line);vertical-align:top}
+  td .spec{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  tr.tot td{border-top:2px solid var(--ink);font-weight:800}
+  .warn{display:none;background:#FFF6D6;color:#5A4300;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;font-weight:600;margin-top:12px}
+  .warn.on{display:block}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .assump{margin-top:18px;font-size:13px;color:var(--muted)}
+  .assump summary{cursor:pointer;font-weight:700;color:var(--ink)}
+  .assump ul{margin:10px 0 0 18px;line-height:1.5}
+  .foot{margin-top:22px;background:var(--black);color:#fff;border-radius:var(--radius);padding:18px 22px;font-size:14px;font-weight:600}
+  .foot a{color:var(--yellow);font-weight:800;text-decoration:none}
+  .disclaim{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div id="brandTitle">Pricing Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+<div class="wrap"><div class="grid">
+  <div class="card">
+    <h2>The job</h2>
+    <p class="lede">Price from your own costs, not a national average.</p>
+    <div class="field"><label>Trade</label><select id="trade"></select></div>
+    <div class="field"><label>Job type</label><select id="job"></select></div>
+    <div class="field"><label id="qtyLabel">Quantity</label>
+      <div class="in-wrap"><input type="number" id="qty" class="hassfx" inputmode="decimal" min="0" step="1" placeholder="0"><span class="sfx" id="qtyUnit"></span></div></div>
+
+    <div class="sect"><h3>Labor <span class="hint">what it costs you, not what you charge</span></h3>
+      <div class="row2">
+        <div class="field"><label>Crew size</label><div class="in-wrap"><input type="number" id="crew" class="hassfx" inputmode="numeric" min="1" max="20" step="1" value="1"><span class="sfx" style="font-size:12px">people</span></div></div>
+        <div class="field"><label>Loaded cost / hr / person</label><div class="in-wrap"><span class="pfx">$</span><input type="number" id="rate" class="haspfx" inputmode="decimal" min="0" step="1"></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Production rate <span class="hint" id="prodHint"></span></label><div class="in-wrap"><input type="number" id="prod" class="hassfx" inputmode="decimal" min="0" step="1"><span class="sfx" style="font-size:12px" id="prodUnit"></span></div></div>
+        <div class="field"><label>Setup + cleanup</label><div class="in-wrap"><input type="number" id="setup" class="hassfx" inputmode="decimal" min="0" step="0.25" value="0.5"><span class="sfx">hrs</span></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Drive time <span class="hint">round trip</span></label><div class="in-wrap"><input type="number" id="drive" class="hassfx" inputmode="numeric" min="0" step="5" value="30"><span class="sfx">min</span></div></div>
+        <div class="field"><label>Minimum charge</label><div class="in-wrap"><span class="pfx">$</span><input type="number" id="minc" class="haspfx" inputmode="decimal" min="0" step="5"></div></div>
+      </div>
+    </div>
+
+    <div class="sect"><h3>Materials &amp; consumables</h3>
+      <div class="row2">
+        <div class="field"><label>Materials cost</label><div class="in-wrap"><span class="pfx">$</span><input type="number" id="mat" class="haspfx" inputmode="decimal" min="0" step="1"></div></div>
+        <div class="field"><label>Markup on materials</label><div class="in-wrap"><input type="number" id="matmk" class="hassfx" inputmode="decimal" min="0" max="200" step="5" value="20"><span class="sfx">%</span></div></div>
+      </div>
+      <div class="field"><label>Equipment / disposal / fees <span class="hint">dump fees, chemicals, rental</span></label><div class="in-wrap"><span class="pfx">$</span><input type="number" id="fees" class="haspfx" inputmode="decimal" min="0" step="1" value="0"></div></div>
+    </div>
+
+    <div class="sect"><h3>Overhead &amp; profit</h3>
+      <div class="row2">
+        <div class="field"><label>Overhead <span class="hint">per billable hour</span></label><div class="in-wrap"><span class="pfx">$</span><input type="number" id="oh" class="haspfx" inputmode="decimal" min="0" step="1" value="15"></div></div>
+        <div class="field"><label>Target net margin</label><div class="in-wrap"><input type="number" id="margin" class="hassfx" inputmode="decimal" min="0" max="80" step="1" value="20"><span class="sfx">%</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card result">
+    <div class="head"><h2>Your price</h2><span class="sec" id="secCount">—</span></div>
+    <div class="body">
+      <div class="hero"><div class="k">Quote this job at</div><div class="v num" id="price">$0</div><div class="u" id="perUnit"></div></div>
+      <div class="range" id="rangeBox">
+        <div class="lbls"><span id="rLo">$0</span><span>Typical range · <span id="rUnit"></span></span><span id="rHi">$0</span></div>
+        <div class="bar"><div class="band" id="band"></div><div class="you" id="you" style="left:50%"></div></div>
+        <p class="note" id="rNote"></p>
+      </div>
+      <table><thead><tr><th>Breakdown</th><th class="r">Amount</th></tr></thead><tbody id="brk"></tbody></table>
+      <div class="warn" id="warn">Enter a quantity to price the job.</div>
+      <div class="actions"><button class="btn-yellow" id="estBtn" type="button">Turn this into an estimate</button><button class="btn-ghost" id="copyBtn" type="button">Copy breakdown</button></div>
+      <details class="assump"><summary>How we calculated this</summary><ul id="assumpList"></ul></details>
+    </div>
+  </div>
+</div>
+<div class="foot">Send the estimate, get it approved, invoice from the same numbers — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a></div>
+<p class="disclaim">Typical ranges are rough national figures for what customers commonly pay, shown for context only — your market, licensing, insurance and reputation move them a lot. The price this tool produces comes from the costs you enter, and it is only as good as those numbers. Loaded labor cost means wages plus payroll taxes, workers' comp and benefits, or the amount you need to pay yourself.</p>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  // Per trade: default loaded labor cost per person-hour (what a worker costs, not the billed rate),
+  // and job types: unit, production rate (units per person-hour), material $ per unit, typical customer price range per unit, min charge.
+  var TRADES={
+    'pressure-washing':{label:'Pressure washing',rate:28,min:150,jobs:[
+      {name:'Driveway / concrete flatwork',unit:'sq ft',prod:600,mat:0.01,range:[0.15,0.35]},
+      {name:'House wash (siding, soft wash)',unit:'sq ft',prod:450,mat:0.02,range:[0.20,0.40]},
+      {name:'Deck or fence',unit:'sq ft',prod:200,mat:0.03,range:[0.50,1.50]},
+      {name:'Roof soft wash',unit:'sq ft',prod:300,mat:0.04,range:[0.30,0.75]},
+      {name:'Commercial flatwork',unit:'sq ft',prod:900,mat:0.01,range:[0.08,0.20]}]},
+    'house-cleaning':{label:'House cleaning',rate:22,min:120,jobs:[
+      {name:'Standard clean',unit:'sq ft',prod:550,mat:0.01,range:[0.08,0.15]},
+      {name:'Deep clean',unit:'sq ft',prod:300,mat:0.015,range:[0.15,0.30]},
+      {name:'Move-in / move-out',unit:'sq ft',prod:250,mat:0.02,range:[0.20,0.35]},
+      {name:'Post-construction clean',unit:'sq ft',prod:220,mat:0.02,range:[0.25,0.45]}]},
+    'lawn-care':{label:'Lawn care',rate:22,min:40,jobs:[
+      {name:'Mow, trim and edge',unit:'1,000 sq ft',prod:18,mat:0.15,range:[4,8]},
+      {name:'Leaf cleanup',unit:'hours on site',prod:1,mat:2,range:[45,80]},
+      {name:'Mulch install',unit:'cu yd',prod:1.2,mat:38,range:[70,130]},
+      {name:'Aeration',unit:'1,000 sq ft',prod:12,mat:0,range:[8,15]},
+      {name:'Fertilizer application',unit:'1,000 sq ft',prod:25,mat:2.5,range:[6,12]}]},
+    'junk-removal':{label:'Junk removal',rate:25,min:125,jobs:[
+      {name:'Truckload (1/8 increments)',unit:'eighths of a truck',prod:2.5,mat:0,range:[90,160]},
+      {name:'Single heavy item (couch, appliance)',unit:'items',prod:2,mat:0,range:[75,175]},
+      {name:'Yard debris',unit:'cu yd',prod:3,mat:0,range:[40,80]}]},
+    'handyman':{label:'Handyman',rate:30,min:125,jobs:[
+      {name:'General repairs',unit:'hours on site',prod:1,mat:0,range:[60,125]},
+      {name:'Ceiling fan / light fixture',unit:'fixtures',prod:1,mat:0,range:[100,225]},
+      {name:'Drywall patch (under 2 ft)',unit:'patches',prod:0.8,mat:12,range:[125,300]},
+      {name:'TV mount',unit:'mounts',prod:1,mat:0,range:[100,250]},
+      {name:'Faucet replacement',unit:'faucets',prod:0.8,mat:0,range:[150,350]}]},
+    'painting':{label:'Painting',rate:28,min:250,jobs:[
+      {name:'Interior walls (2 coats)',unit:'sq ft of wall',prod:180,mat:0.35,range:[1.50,4.00]},
+      {name:'Interior ceilings',unit:'sq ft',prod:200,mat:0.30,range:[1.00,2.50]},
+      {name:'Trim and doors',unit:'linear ft',prod:40,mat:0.15,range:[1.50,4.00]},
+      {name:'Exterior siding (2 coats)',unit:'sq ft',prod:130,mat:0.45,range:[2.00,5.00]},
+      {name:'Cabinet refinishing',unit:'doors + drawers',prod:0.5,mat:8,range:[75,150]}]},
+    'gutter-cleaning':{label:'Gutter cleaning',rate:26,min:100,jobs:[
+      {name:'Cleaning, single story',unit:'linear ft',prod:180,mat:0,range:[0.80,1.50]},
+      {name:'Cleaning, two story',unit:'linear ft',prod:120,mat:0,range:[1.20,2.50]},
+      {name:'Gutter guard install',unit:'linear ft',prod:35,mat:4.5,range:[8,20]},
+      {name:'Downspout flush / repair',unit:'downspouts',prod:3,mat:5,range:[40,100]}]},
+    'window-cleaning':{label:'Window cleaning',rate:24,min:100,jobs:[
+      {name:'Standard panes, inside and out',unit:'panes',prod:20,mat:0.05,range:[5,12]},
+      {name:'Exterior only',unit:'panes',prod:35,mat:0.05,range:[3,7]},
+      {name:'Screens',unit:'screens',prod:30,mat:0,range:[2,5]},
+      {name:'Storefront (route work)',unit:'panes',prod:45,mat:0.03,range:[2,5]}]},
+    'snow-removal':{label:'Snow removal',rate:28,min:40,jobs:[
+      {name:'Residential driveway, per push',unit:'driveways',prod:3,mat:0,range:[35,75]},
+      {name:'Sidewalk / walkway',unit:'linear ft',prod:300,mat:0.02,range:[0.30,0.75]},
+      {name:'Commercial lot, per push',unit:'acres',prod:0.8,mat:0,range:[75,200]},
+      {name:'Salting / de-icing',unit:'1,000 sq ft',prod:8,mat:6,range:[15,35]}]},
+    'landscaping':{label:'Landscaping',rate:26,min:200,jobs:[
+      {name:'Sod install',unit:'sq ft',prod:280,mat:0.60,range:[1.00,2.00]},
+      {name:'Planting bed prep + mulch',unit:'sq ft',prod:60,mat:0.80,range:[3,8]},
+      {name:'Shrub / small tree planting',unit:'plants',prod:1.5,mat:45,range:[75,200]},
+      {name:'Paver patio',unit:'sq ft',prod:12,mat:6,range:[15,30]},
+      {name:'Hedge trimming',unit:'linear ft',prod:40,mat:0,range:[2,6]}]},
+    'drywall':{label:'Drywall',rate:28,min:250,jobs:[
+      {name:'Hang, tape and finish',unit:'sq ft',prod:55,mat:0.55,range:[1.50,3.00]},
+      {name:'Hang only',unit:'sq ft',prod:140,mat:0.50,range:[0.60,1.20]},
+      {name:'Finish only (level 4)',unit:'sq ft',prod:90,mat:0.08,range:[0.80,1.50]},
+      {name:'Patch repair',unit:'patches',prod:0.8,mat:12,range:[125,300]}]}
+  };
+  var qs={};location.search.replace(/^\?/,'').split('&').forEach(function(p){var kv=p.split('=');if(kv[0])qs[decodeURIComponent(kv[0])]=decodeURIComponent((kv[1]||'').replace(/\+/g,' '));});
+  var tradeKey=TRADES[qs.trade]?qs.trade:'pressure-washing', lockTrade=!!TRADES[qs.trade];
+  $('trade').innerHTML=Object.keys(TRADES).map(function(k){return '<option value="'+k+'"'+(k===tradeKey?' selected':'')+'>'+TRADES[k].label+'</option>';}).join('');
+  function n(v){v=parseFloat(v);return isFinite(v)&&v>0?v:0;}
+  function money(v){if(!isFinite(v))v=0;return '$'+Math.round(v).toLocaleString('en-US');}
+  function money2(v){if(!isFinite(v))v=0;return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function T(){return TRADES[$('trade').value];}
+  function J(){return T().jobs[parseInt($('job').value,10)||0];}
+  function applyTrade(){
+    var t=T();$('brandTitle').innerHTML=t.label+' Pricing Calculator<small>by BIG WORKS</small>';
+    $('job').innerHTML=t.jobs.map(function(j,i){return '<option value="'+i+'">'+j.name+'</option>';}).join('');
+    $('rate').value=t.rate;$('minc').value=t.min;applyJob(true);
+  }
+  function applyJob(fresh){
+    var j=J();$('qtyUnit').textContent=j.unit;$('qtyLabel').textContent='How much? ('+j.unit+')';
+    $('prod').value=j.prod;$('prodUnit').textContent=j.unit.split(' ')[0]==='hours'?'':(j.unit+'/hr');$('prodHint').textContent='per person per hour';
+    $('rUnit').textContent='per '+j.unit.replace(/s$/,'').replace('eighths of a truck','1/8 truck');
+    if(fresh)$('qty').value='';$('mat').value='';recalc();
+  }
+  var last={};
+  function recalc(){
+    var j=J(),t=T(),qty=n($('qty').value),crew=Math.max(1,Math.round(n($('crew').value)||1)),rate=n($('rate').value),prod=n($('prod').value),setup=n($('setup').value),drive=n($('drive').value),minc=n($('minc').value);
+    var matIn=$('mat').value.trim()===''?null:n($('mat').value),matmk=n($('matmk').value),fees=n($('fees').value),oh=n($('oh').value),margin=Math.min(80,n($('margin').value));
+    var warn=$('warn');warn.classList.remove('on');
+    if(qty<=0){warn.classList.add('on');$('price').textContent='$0';$('perUnit').textContent='';$('brk').innerHTML='';$('secCount').textContent='—';$('assumpList').innerHTML='<li>Enter a quantity to see the math.</li>';$('rangeBox').style.display='none';last={};ph();return;}
+    $('rangeBox').style.display='';
+    var isHours=j.unit.indexOf('hours')===0;
+    var siteHrs=isHours?qty:(prod>0?qty/prod:0);           // person-hours of production
+    var crewHrsOnSite=siteHrs/crew;                          // clock hours on site
+    var personHrs=siteHrs+(setup+drive/60)*crew;             // every person is paid for setup and drive
+    var billableHrs=crewHrsOnSite+setup+drive/60;            // clock hours the job occupies
+    var labor=personHrs*rate;
+    var mat=(matIn===null?j.mat*qty:matIn);
+    var matSell=mat*(1+matmk/100);
+    var overhead=billableHrs*oh;
+    var cost=labor+mat+fees+overhead;
+    // Margin is taken on the full cost of the job (true margin on the sale); the material markup is added on top.
+    var matProfit=matSell-mat;
+    var price=cost/(1-margin/100)+matProfit;
+    var floored=false;if(minc>0&&price<minc){price=minc;floored=true;}
+    var per=price/qty;
+    $('price').textContent=money(price);
+    $('perUnit').textContent=money2(per)+' per '+j.unit.replace(/s$/,'')+(isHours?'':' · about '+(Math.round(billableHrs*10)/10)+' hrs on the clock');
+    $('secCount').textContent=t.label+' · '+j.name;
+    // range bar
+    var lo=j.range[0],hi=j.range[1],span=hi-lo,pad=span*0.6,axLo=Math.max(0,lo-pad),axHi=hi+pad;
+    function pos(v){return Math.max(0,Math.min(100,(v-axLo)/(axHi-axLo)*100));}
+    $('band').style.left=pos(lo)+'%';$('band').style.width=(pos(hi)-pos(lo))+'%';$('you').style.left=pos(per)+'%';
+    $('rLo').textContent=money2(lo);$('rHi').textContent=money2(hi);
+    var rn;if(per<lo)rn='You are <b>below</b> the typical range. Fine if you are deliberately winning volume; otherwise check your labor cost and overhead — underpricing is the most common way a profitable-looking job breaks even.';
+    else if(per>hi)rn='You are <b>above</b> the typical range. That can be right for premium work, a small job with a big trip, or a tight schedule — just be ready to explain it.';
+    else rn='Inside the typical range for this work. The range is a rough national figure; your market can sit well outside it.';
+    $('rNote').innerHTML=rn;
+    var rows=[['Labor',money(labor),Math.round(personHrs*10)/10+' person-hrs × '+money(rate)+' loaded'],['Materials',money(mat),'at cost'],['Material markup',money(matProfit),matmk+'%'],['Equipment, disposal, fees',money(fees),''],['Overhead',money(overhead),Math.round(billableHrs*10)/10+' billable hrs × '+money(oh)],['Profit at '+margin+'%',money(price-cost-matProfit),floored?'lifted to your minimum charge':'']];
+    $('brk').innerHTML=rows.map(function(r){return '<tr><td>'+r[0]+(r[2]?'<span class="spec">'+r[2]+'</span>':'')+'</td><td class="r">'+r[1]+'</td></tr>';}).join('')+'<tr class="tot"><td>Price</td><td class="r">'+money(price)+'</td></tr>';
+    $('assumpList').innerHTML=[
+      (isHours?'Hours on site entered directly: '+qty+'.':'Production: '+qty.toLocaleString('en-US')+' '+j.unit+' ÷ '+prod+' per person-hour = '+(Math.round(siteHrs*10)/10)+' person-hours, or '+(Math.round(crewHrsOnSite*10)/10)+' clock hours with a crew of '+crew+'.'),
+      'Setup, cleanup and drive time are paid for every person on the crew: ('+setup+' + '+Math.round(drive)+'/60) × '+crew+' = '+(Math.round((setup+drive/60)*crew*10)/10)+' extra person-hours.',
+      'Loaded labor cost is what each person costs you per hour, including payroll burden — or what you need to pay yourself. It is not the rate you bill.',
+      'Overhead is charged per billable hour the job occupies ('+(Math.round(billableHrs*10)/10)+' hrs). Divide your monthly overhead by the hours you actually bill to get this number; most solo operators land between $10 and $30.',
+      'Price = (labor + materials + fees + overhead) ÷ (1 − margin), plus the material markup. Dividing by (1 − margin) gives a true margin on the sale, not a markup on cost.',
+      (minc>0?'Minimum charge of '+money(minc)+(floored?' applied — the job was too small to cover the trip.':' not needed.'):'No minimum charge set.'),
+      'Typical range from published cost guides and contractor forums, rounded; treat as context, not a target.'
+    ].map(function(a){return '<li>'+a+'</li>';}).join('');
+    last={t:t,j:j,qty:qty,price:price,per:per,labor:labor,mat:matSell,fees:fees,overhead:overhead,hrs:billableHrs};ph();
+  }
+  $('trade').addEventListener('change',applyTrade);$('job').addEventListener('change',function(){applyJob(true);});
+  ['qty','crew','rate','prod','setup','drive','minc','mat','matmk','fees','oh','margin'].forEach(function(id){$(id).addEventListener('input',recalc);});
+  // Hand-off: open the estimate generator on bigworks.app with these lines pre-filled.
+  function b64u(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+  $('estBtn').addEventListener('click',function(){
+    if(!last.j)return;
+    var unit=last.j.unit,lines=[];
+    var laborLine=last.price-last.mat-last.fees;
+    lines.push([last.j.name+' — '+last.t.label.toLowerCase()+' ('+last.qty.toLocaleString('en-US')+' '+unit+')',1,Math.round(laborLine)]);
+    if(last.mat>0)lines.push(['Materials and supplies',1,Math.round(last.mat)]);
+    if(last.fees>0)lines.push(['Equipment, disposal and fees',1,Math.round(last.fees)]);
+    var url='https://www.bigworks.app/tools/estimate-generator?bwq='+b64u(JSON.stringify(lines));
+    window.open(url,'_top');
+  });
+  $('copyBtn').addEventListener('click',function(){if(!last.j)return;var l=[last.t.label.toUpperCase()+' — '+last.j.name+', '+last.qty+' '+last.j.unit,'','Labor: '+money(last.labor),'Materials (with markup): '+money(last.mat),'Fees: '+money(last.fees),'Overhead: '+money(last.overhead),'','PRICE: '+money(last.price)+'  ('+money2(last.per)+' per '+last.j.unit.replace(/s$/,'')+')','','Calculated at bigworks.app/tools/pricing-calculator'].join('\n');var btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy breakdown';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(l).then(function(){done(true);},function(){fb(l,done);});}else fb(l,done);});
+  function fb(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+  $('resetBtn').addEventListener('click',function(){$('crew').value='1';$('setup').value='0.5';$('drive').value='30';$('matmk').value='20';$('fees').value='0';$('oh').value='15';$('margin').value='20';applyTrade();});
+  function ph(){try{parent.postMessage({bwigH:document.body.scrollHeight},'*');}catch(e){}}
+  window.addEventListener('load',ph);if(window.ResizeObserver){new ResizeObserver(ph).observe(document.body);}
+  document.addEventListener('input',function(){setTimeout(ph,30);},true);document.addEventListener('click',function(){setTimeout(ph,90);},true);setTimeout(ph,350);
+  applyTrade();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Conduit Fill Calculator | BIG WORKS</title>
+<style>
+  :root{
+    --black:#000000; --white:#FFFFFF; --surface:#F3F3F5; --yellow:#FFC20F;
+    --ink:#111114; --muted:#717182; --line:#E6E6EA; --success:#04DF13; --error:#D4183D;
+    --radius:14px; --radius-sm:8px; --pill:999px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--surface);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .appbar{background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .mark{background:var(--yellow);color:#000;font-weight:900;padding:3px 8px;border-radius:6px;font-size:15px}
+  .brand small{display:block;font-weight:600;color:#B9B9C0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  button{font-family:var(--font);cursor:pointer;border:0;border-radius:var(--pill);font-weight:700;font-size:14px;padding:11px 18px;transition:transform .05s,box-shadow .15s,background .15s}
+  button:active{transform:translateY(1px)}
+  .btn-ghost{background:#1C1C1E;color:#fff}
+  .btn-ghost:hover{background:#2A2A2E}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-yellow:hover{background:#F0B800}
+
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,.08);padding:26px}
+  .card h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .card .lede{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .field .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
+  .in-wrap{position:relative}
+  .in-wrap .pfx,.in-wrap .sfx{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:15px;pointer-events:none}
+  .in-wrap .pfx{left:14px}
+  .in-wrap .sfx{right:14px}
+  input[type=number],input[type=text]{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;-webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+  input.haspfx{padding-left:30px}
+  input.hassfx{padding-right:44px}
+  input:focus{outline:none;border-color:var(--yellow);background:#fff}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  select{width:100%;font-family:var(--font);font-size:16px;font-weight:600;color:var(--ink);background:var(--surface);
+    border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--yellow);background:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--radius-sm);padding:3px;gap:3px}
+  .seg button{padding:10px 6px;font-size:13px;border-radius:6px;background:transparent;color:var(--muted);font-weight:700}
+  .seg button.on{background:var(--yellow);color:#000}
+
+  /* right column */
+  .result{background:var(--black);color:#fff;padding:0;overflow:hidden}
+  .result .head{background:var(--yellow);color:#000;padding:16px 26px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .result .head h2{font-size:16px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#000;margin:0}
+  .result .head .sec{font-size:12px;font-weight:700;color:#5A4600}
+  .result .body{padding:22px 26px 26px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700;text-align:left;padding:0 0 8px}
+  thead th.r{text-align:right}
+  tbody td{padding:9px 0;border-top:1px solid #2A2A2E;vertical-align:top}
+  tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tbody td .spec{display:block;color:#8B8B94;font-size:11.5px;font-weight:500;margin-top:2px}
+  tbody tr.gate td{color:var(--yellow)}
+  .totrow td{border-top:2px solid var(--yellow);padding-top:12px;font-weight:800;font-size:15px}
+
+  .costcol{color:#B9B9C0}
+  .grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid #2A2A2E}
+  .grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8B8B94;font-weight:700}
+  .grand .val{font-size:32px;font-weight:900;color:var(--yellow);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  .actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .actions button{flex:1;min-width:130px}
+
+  .warn{background:#3A2A00;color:#FFD666;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);margin-top:14px;display:none;font-weight:600}
+  .warn.on{display:block}
+
+  details.assump{margin-top:16px;background:#1C1C1E;border-radius:var(--radius-sm);padding:12px 14px}
+  details.assump summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:.02em;list-style:none}
+  details.assump summary::-webkit-details-marker{display:none}
+  details.assump summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details.assump[open] summary:before{content:"▾ "}
+  details.assump ul{margin:10px 0 0 0;padding-left:16px;color:#B9B9C0;font-size:12px;line-height:1.65}
+
+  .prices{margin-top:20px}
+  .prices h3{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .prices .note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+  .pgrid .field{margin-bottom:0}
+  .pgrid label{font-size:11px}
+
+  .foot{margin-top:22px;padding:18px 20px;background:#fff;border-radius:var(--radius);text-align:center;font-size:13px;color:var(--muted)}
+  .foot a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--yellow)}
+  .foot a:hover{color:#000}
+  .disclaim{margin-top:14px;font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center}
+</style>
+<style>
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .crow{background:var(--surface);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px}
+  .crow .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .crow select{background:#fff;font-size:13px;padding:9px 10px}
+  .crow input{background:#fff;font-size:14px;padding:9px 10px;width:100%}
+  .crow .rm{background:transparent;color:var(--muted);font-size:18px;padding:2px 8px;font-weight:700;line-height:1;border-radius:6px}
+  .crow .rm:hover{background:#E7E7EB;color:var(--ink)}
+  .crow .g{display:grid;grid-template-columns:1.1fr 1.3fr .7fr auto;gap:8px;align-items:center}
+  .addbtn{width:100%;background:#fff;border:1.5px dashed var(--line);color:var(--ink);border-radius:var(--radius-sm);padding:11px;font-size:13px}
+  .addbtn:hover{border-color:var(--yellow)}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;margin-top:6px}
+  .chk input{width:18px;height:18px;accent-color:var(--yellow)}
+  .result .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .result .sec{font-size:12px;font-weight:700;color:var(--muted)}
+  .meter{height:14px;background:var(--surface);border-radius:var(--pill);overflow:hidden;margin:6px 0 4px;position:relative}
+  .meter i{display:block;height:100%;background:var(--yellow);width:0;transition:width .2s}
+  .meter i.over{background:#E5484D}
+  .meter b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.5}
+  .fillv{display:flex;justify-content:space-between;align-items:baseline}
+  .fillv .pct{font-size:34px;font-weight:900;letter-spacing:-.02em}
+  .fillv .pct.over{color:#E5484D}
+  .fillv .lim{font-size:13px;color:var(--muted);font-weight:700}
+  .status{margin-top:10px;border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;font-weight:700}
+  .status.ok{background:#E8F7EC;color:#135B26}
+  .status.bad{background:#FDE8E9;color:#7A1D21}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:16px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:0 0 8px}
+  th.r,td.r{text-align:right}
+  td{padding:9px 0;border-top:1px solid var(--line);vertical-align:top}
+  td .spec{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .warn{display:none;background:#FFF6D6;color:#5A4300;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;font-weight:600;margin-top:12px}
+  .warn.on{display:block}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .assump{margin-top:18px;font-size:13px;color:var(--muted)}
+  .assump summary{cursor:pointer;font-weight:700;color:var(--ink)}
+  .assump ul{margin:10px 0 0 18px;line-height:1.5}
+  .foot{margin-top:22px;background:var(--black);color:#fff;border-radius:var(--radius);padding:18px 22px;font-size:14px;font-weight:600}
+  .foot a{color:var(--yellow);font-weight:800;text-decoration:none}
+  .disclaim{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="brand"><span class="mark">BW</span><div>Conduit Fill Calculator<small>by BIG WORKS</small></div></div>
+  <button class="btn-ghost" id="resetBtn">Reset</button>
+</div>
+<div class="wrap"><div class="grid">
+  <div class="card">
+    <h2>Raceway</h2>
+    <p class="lede">NEC Chapter 9, Tables 1, 4 and 5.</p>
+    <div class="field"><label>Conduit</label>
+      <div class="row2"><select id="ctype"></select><select id="csize"></select></div></div>
+    <label class="chk"><input type="checkbox" id="nipple"> Nipple — 24" or less between boxes (60% fill allowed)</label>
+    <h2 style="margin-top:22px">Conductors</h2>
+    <p class="lede">Add every conductor in the run, including grounds and neutrals.</p>
+    <div id="rows"></div>
+    <button type="button" class="addbtn" id="addBtn">+ Add conductors</button>
+  </div>
+  <div class="card result">
+    <div class="head"><h2>Fill</h2><span class="sec" id="secCount">—</span></div>
+    <div class="body">
+      <div class="fillv"><span class="pct num" id="pct">0%</span><span class="lim" id="lim">of 40% allowed</span></div>
+      <div class="meter"><i id="bar"></i><b id="mark" style="left:40%"></b></div>
+      <div class="status ok" id="status">Add conductors to check the fill.</div>
+      <table><thead><tr><th>Conductor</th><th class="r">Qty</th><th class="r">Area sq in</th></tr></thead><tbody id="matBody"></tbody></table>
+      <table><tbody id="sumBody"></tbody></table>
+      <div class="warn" id="warn"></div>
+      <div class="actions"><button class="btn-yellow" id="copyBtn" type="button">Copy result</button></div>
+      <details class="assump"><summary>How we calculated this</summary><ul id="assumpList"></ul></details>
+    </div>
+  </div>
+</div>
+<div class="foot">Bidding the job? Price it, then send it — <a href="https://apps.apple.com/us/app/big-invoice-invoice-maker/id6781073774" target="_blank" rel="noopener">get BIG INVOICE free →</a></div>
+<p class="disclaim">Areas are from NEC 2023 Chapter 9, Tables 1, 4 and 5 for the listed insulation types. Compact conductors, cables in raceways and jacketed multi-conductor assemblies use different tables. This is a planning tool; the AHJ's interpretation and your adopted code edition govern. Derating for more than three current-carrying conductors (310.15) is a separate calculation this tool does not do.</p>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var SIZES=['1/2"','3/4"','1"','1-1/4"','1-1/2"','2"','2-1/2"','3"','3-1/2"','4"'];
+  // NEC Chapter 9 Table 4 — total internal area, sq in
+  var CONDUIT={
+    emt:  {label:'EMT',                a:[0.304,0.533,0.864,1.496,2.036,3.356,5.858,8.846,11.545,14.753]},
+    pvc40:{label:'PVC Schedule 40',    a:[0.285,0.508,0.832,1.453,1.986,3.291,4.695,7.268,9.737,12.554]},
+    pvc80:{label:'PVC Schedule 80',    a:[0.217,0.409,0.688,1.237,1.711,2.874,4.119,6.442,8.688,11.258]},
+    imc:  {label:'IMC',                a:[0.342,0.586,0.959,1.647,2.225,3.630,5.135,7.922,10.584,13.631]},
+    rmc:  {label:'RMC (rigid metal)',  a:[0.314,0.549,0.887,1.526,2.071,3.408,4.866,7.499,10.010,12.882]}
+  };
+  var WSIZES=['14','12','10','8','6','4','3','2','1','1/0','2/0','3/0','4/0','250','300','350','400','500'];
+  // NEC Chapter 9 Table 5 — conductor area incl. insulation, sq in
+  var WIRE={
+    thhn:{label:'THHN / THWN / THWN-2', a:[0.0097,0.0133,0.0211,0.0366,0.0507,0.0824,0.0973,0.1158,0.1562,0.1855,0.2223,0.2679,0.3237,0.3970,0.4608,0.5242,0.5863,0.7073]},
+    xhhw:{label:'XHHW / XHHW-2',        a:[0.0139,0.0181,0.0243,0.0437,0.0590,0.0814,0.0962,0.1146,0.1534,0.1825,0.2190,0.2642,0.3197,0.3904,0.4536,0.5166,0.5782,0.6984]}
+  };
+  function wlabel(i){var s=WSIZES[i];return (parseInt(s,10)>=250?s+' kcmil':'#'+s+' AWG');}
+  $('ctype').innerHTML=Object.keys(CONDUIT).map(function(k){return '<option value="'+k+'">'+CONDUIT[k].label+'</option>';}).join('');
+  $('csize').innerHTML=SIZES.map(function(s,i){return '<option value="'+i+'"'+(i===1?' selected':'')+'>'+s+'</option>';}).join('');
+  function n(v){v=parseFloat(v);return isFinite(v)&&v>0?v:0;}
+  function addRow(si,ti,q){
+    var d=document.createElement('div');d.className='crow';
+    d.innerHTML='<div class="g"><select class="ws">'+WSIZES.map(function(s,i){return '<option value="'+i+'"'+(i===si?' selected':'')+'>'+wlabel(i)+'</option>';}).join('')+'</select>'+
+      '<select class="wt">'+Object.keys(WIRE).map(function(k){return '<option value="'+k+'"'+(k===ti?' selected':'')+'>'+WIRE[k].label+'</option>';}).join('')+'</select>'+
+      '<input type="number" class="q" inputmode="numeric" min="0" step="1" value="'+q+'"><button type="button" class="rm" title="Remove">×</button></div>';
+    $('rows').appendChild(d);
+    d.querySelector('.rm').addEventListener('click',function(){d.remove();recalc();});
+    Array.prototype.forEach.call(d.querySelectorAll('select,input'),function(i){i.addEventListener('input',recalc);i.addEventListener('change',recalc);});
+    recalc();
+  }
+  var lastTxt='';
+  function recalc(){
+    var ck=$('ctype').value,ci=parseInt($('csize').value,10),cA=CONDUIT[ck].a[ci],nip=$('nipple').checked;
+    var rows=[],count=0,used=0;
+    Array.prototype.forEach.call($('rows').querySelectorAll('.crow'),function(d){
+      var si=parseInt(d.querySelector('.ws').value,10),tk=d.querySelector('.wt').value,q=Math.round(n(d.querySelector('.q').value));
+      if(q<=0)return;var a=WIRE[tk].a[si];count+=q;used+=a*q;rows.push({item:wlabel(si)+' '+WIRE[tk].label,qty:q,each:a,tot:a*q});
+    });
+    var limit=nip?60:(count===1?53:(count===2?31:40));
+    var allowed=cA*limit/100,pct=cA>0?used/cA*100:0,ok=used<=allowed+1e-9;
+    $('pct').textContent=(Math.round(pct*10)/10)+'%';$('pct').classList.toggle('over',!ok&&count>0);
+    $('lim').textContent='of '+limit+'% allowed';
+    $('bar').style.width=Math.min(100,pct)+'%';$('bar').classList.toggle('over',!ok&&count>0);$('mark').style.left=limit+'%';
+    $('secCount').textContent=SIZES[ci]+' '+CONDUIT[ck].label+' · '+cA.toFixed(3)+' sq in';
+    var st=$('status');
+    if(count===0){st.className='status ok';st.textContent='Add conductors to check the fill.';}
+    else if(ok){st.className='status ok';st.textContent='OK — '+count+' conductor'+(count===1?'':'s')+' fit. '+(allowed-used).toFixed(3)+' sq in to spare.';}
+    else{
+      // smallest size of this conduit type that would work
+      var fix='';for(var i=ci+1;i<SIZES.length;i++){if(CONDUIT[ck].a[i]*limit/100>=used){fix=' Bump to '+SIZES[i]+' '+CONDUIT[ck].label+'.';break;}}
+      st.className='status bad';st.textContent='Over fill by '+(used-allowed).toFixed(3)+' sq in.'+(fix||' No listed size of this type fits — split the run.');
+    }
+    $('matBody').innerHTML=rows.map(function(r){return '<tr><td>'+r.item+'<span class="spec">'+r.each.toFixed(4)+' sq in each</span></td><td class="r">'+r.qty+'</td><td class="r">'+r.tot.toFixed(4)+'</td></tr>';}).join('');
+    $('sumBody').innerHTML='<tr><td>Conductor area</td><td class="r">'+used.toFixed(4)+' sq in</td></tr><tr><td>Allowed at '+limit+'%</td><td class="r">'+allowed.toFixed(4)+' sq in</td></tr>';
+    // max count of the first row's conductor size in this conduit
+    var maxLine='';if(rows.length===1){var maxq=Math.floor(cA*(nip?60:40)/100/rows[0].each);maxLine='Maximum '+maxq+' × '+rows[0].item+' in this raceway at '+(nip?60:40)+'%.';}
+    $('assumpList').innerHTML=[
+      'Conduit internal area from NEC Chapter 9 Table 4: '+SIZES[ci]+' '+CONDUIT[ck].label+' = '+cA.toFixed(3)+' sq in.',
+      'Conductor areas from Table 5, insulation included. Bare grounds use Table 8 and are slightly smaller; using the insulated figure is conservative.',
+      'Fill limit from Table 1: 53% for one conductor, 31% for two, 40% for three or more'+(nip?' — overridden to 60% because you marked this a nipple (Chapter 9 Note 4).':'.'),
+      'Fill % = total conductor area ÷ conduit area. The limit applies to the sum, not to each conductor.',
+      maxLine||'Add conductors to see the maximum count for a single size.'
+    ].filter(Boolean).map(function(a){return '<li>'+a+'</li>';}).join('');
+    lastTxt='CONDUIT FILL — '+SIZES[ci]+' '+CONDUIT[ck].label+'\n'+rows.map(function(r){return r.qty+' × '+r.item+'  '+r.tot.toFixed(4)+' sq in';}).join('\n')+'\nTotal '+used.toFixed(4)+' sq in of '+allowed.toFixed(4)+' allowed ('+limit+'%) — '+(Math.round(pct*10)/10)+'% '+(ok?'OK':'OVER')+'\nCalculated at bigworks.app/tools/conduit-fill-calculator';
+    ph();
+  }
+  $('addBtn').addEventListener('click',function(){addRow(1,'thhn',1);});
+  ['ctype','csize','nipple'].forEach(function(id){$(id).addEventListener('change',recalc);});
+  $('copyBtn').addEventListener('click',function(){var btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy result';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(lastTxt).then(function(){done(true);},function(){fb(lastTxt,done);});}else fb(lastTxt,done);});
+  function fb(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+  $('resetBtn').addEventListener('click',function(){$('rows').innerHTML='';$('ctype').value='emt';$('csize').value='1';$('nipple').checked=false;addRow(1,'thhn',3);addRow(1,'thhn',1);});
+  function ph(){try{parent.postMessage({bwigH:document.body.scrollHeight},'*');}catch(e){}}
+  window.addEventListener('load',ph);if(window.ResizeObserver){new ResizeObserver(ph).observe(document.body);}
+  document.addEventListener('input',function(){setTimeout(ph,30);},true);document.addEventListener('click',function(){setTimeout(ph,90);},true);setTimeout(ph,350);
+  addRow(1,'thhn',3);addRow(1,'thhn',1);
+})();
+</script>
+</body>
+</html>

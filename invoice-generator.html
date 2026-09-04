@@ -593,6 +593,20 @@
       if(q.get('mode')==='estimate') setMode('estimate');
       var p = q.get('preset');
       if(p && PRESETS[p]){ var s=document.getElementById('tradeSel'); if(s) s.value=p; loadPreset(p); }
+      // Pre-filled lines from the pricing calculator: base64url JSON of [[desc, qty, rate], ...]
+      var L = q.get('lines');
+      if(L){
+        try{
+          var b = L.replace(/-/g,'+').replace(/_/g,'/'); while(b.length % 4) b += '=';
+          var arr = JSON.parse(decodeURIComponent(escape(atob(b))));
+          if(arr && arr.length){
+            setMode('estimate');
+            document.getElementById('rows').innerHTML = '';
+            arr.slice(0,25).forEach(function(it){ addRow(String(it[0]||'').slice(0,120), Number(it[1])||1, Number(it[2])||''); });
+            recalc();
+          }
+        }catch(e){}
+      }
     }catch(e){}
     function ph(){ try{ parent.postMessage({bwigH:document.body.scrollHeight}, '*'); }catch(e){} }
     window.addEventListener('load', ph);
