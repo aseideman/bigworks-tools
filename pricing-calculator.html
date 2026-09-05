@@ -107,6 +107,9 @@
 </style>
 <style>
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .intro{margin:0 0 22px}
+  .intro h1{font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.15}
+  .intro p{margin-top:8px;font-size:15px;color:var(--muted);line-height:1.5;max-width:720px}
   .sect{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
   .sect h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;color:var(--ink)}
   .sect h3 .hint{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;margin-left:6px}
@@ -144,7 +147,9 @@
   <div class="brand"><span class="mark">BW</span><div id="brandTitle">Pricing Calculator<small>by BIG WORKS</small></div></div>
   <button class="btn-ghost" id="resetBtn">Reset</button>
 </div>
-<div class="wrap"><div class="grid">
+<div class="wrap">
+<div class="intro"><h1 id="introH">An easy way to price any job</h1><p id="introP"></p></div>
+<div class="grid">
   <div class="card">
     <h2>The job</h2>
     <p class="lede">Price from your own costs, not a national average.</p>
@@ -195,7 +200,8 @@
       </div>
       <table><thead><tr><th>Breakdown</th><th class="r">Amount</th></tr></thead><tbody id="brk"></tbody></table>
       <div class="warn" id="warn">Enter a quantity to price the job.</div>
-      <div class="actions"><button class="btn-yellow" id="estBtn" type="button">Turn this into an estimate</button><button class="btn-ghost" id="copyBtn" type="button">Copy breakdown</button></div>
+      <div class="actions"><button class="btn-yellow" id="estBtn" type="button">Turn this into an estimate</button><button class="btn-yellow" id="invBtn" type="button">…or an invoice</button><button class="btn-ghost" id="copyBtn" type="button">Copy breakdown</button></div>
+      <p class="disclaim" style="margin-top:8px">Estimate if you are quoting; invoice if the job is already done. Both open with these line items filled in.</p>
       <details class="assump"><summary>How we calculated this</summary><ul id="assumpList"></ul></details>
     </div>
   </div>
@@ -269,6 +275,8 @@
       {name:'Finish only (level 4)',unit:'sq ft',prod:90,mat:0.08,range:[0.80,1.50]},
       {name:'Patch repair',unit:'patches',prod:0.8,mat:12,range:[125,300]}]}
   };
+  var BLURB={"pressure-washing": "Driveways, house washes, decks and roofs \u2014 priced from your machine's real production rate, your chemical cost and your drive, not a per-square-foot guess.", "house-cleaning": "Standard, deep and move-out cleans priced from what your cleaners cost per hour and how many square feet they actually get through \u2014 then compared to what customers typically pay.", "lawn-care": "Mowing, cleanups, mulch and treatments priced per visit from your labor cost and the drive between stops \u2014 the number that decides whether a lawn belongs on your route.", "junk-removal": "Truckloads, single items and debris priced from load time, the trip to the dump and the tipping fee, so the fee never comes out of your margin.", "handyman": "Hourly calls and flat-rate tasks priced from what your time really costs, with the minimum charge worked out instead of guessed.", "painting": "Walls, ceilings, trim, exterior and cabinets priced from your coverage rate and prep time, with paint and sundries marked up separately.", "gutter-cleaning": "Single and two-story cleaning, guards and downspouts priced per foot from your ladder time and drive \u2014 height and feet of gutter, not house size.", "window-cleaning": "Priced per pane, inside and out or exterior only, from your real pace \u2014 because a French door is fifteen panes, not one window.", "snow-removal": "Per push, per foot and per lot, priced from your equipment cost and the drive between stops at 4am, with salt as a marked-up material.", "landscaping": "Sod, beds, planting, patios and hedges priced with materials and labor kept separate, because your customer can price the plants online.", "drywall": "Hang, tape and finish priced per square foot from your real speed, with finish level, ceilings and the board itself accounted for."};
+  var GENERIC='Enter the job, your real costs — labor, speed, drive time, materials, overhead — and the margin you need. Out comes a price you can defend, a per-unit rate, and where it sits against what customers typically pay. Then send it as an estimate or an invoice in one tap.';
   var qs={};location.search.replace(/^\?/,'').split('&').forEach(function(p){var kv=p.split('=');if(kv[0])qs[decodeURIComponent(kv[0])]=decodeURIComponent((kv[1]||'').replace(/\+/g,' '));});
   var tradeKey=TRADES[qs.trade]?qs.trade:'pressure-washing', lockTrade=!!TRADES[qs.trade];
   $('trade').innerHTML=Object.keys(TRADES).map(function(k){return '<option value="'+k+'"'+(k===tradeKey?' selected':'')+'>'+TRADES[k].label+'</option>';}).join('');
@@ -280,6 +288,8 @@
   function J(){return T().jobs[parseInt($('job').value,10)||0];}
   function applyTrade(){
     var t=T();$('brandTitle').innerHTML=t.label+' Pricing Calculator<small>by BIG WORKS</small>';
+    if(lockTrade){ $('introH').textContent='An easy way to price a '+t.label.toLowerCase()+' job'; $('introP').textContent=BLURB[$('trade').value]+' Works from your numbers, then turns into an estimate or invoice in one tap.'; }
+    else { $('introH').textContent='An easy way to price any job'; $('introP').textContent=GENERIC; }
     $('job').innerHTML=t.jobs.map(function(j,i){return '<option value="'+i+'">'+j.name+'</option>';}).join('');
     $('rate').value=t.rate;$('minc').value=t.min;applyJob(true);
   }
@@ -340,16 +350,22 @@
   ['qty','crew','rate','prod','setup','drive','minc','mat','matmk','fees','oh','margin'].forEach(function(id){$(id).addEventListener('input',recalc);});
   // Hand-off: open the estimate generator on bigworks.app with these lines pre-filled.
   function b64u(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
-  $('estBtn').addEventListener('click',function(){
+  function handoff(mode){
     if(!last.j)return;
     var unit=last.j.unit,lines=[];
     var laborLine=last.price-last.mat-last.fees;
     lines.push([last.j.name+' — '+last.t.label.toLowerCase()+' ('+last.qty.toLocaleString('en-US')+' '+unit+')',1,Math.round(laborLine)]);
     if(last.mat>0)lines.push(['Materials and supplies',1,Math.round(last.mat)]);
     if(last.fees>0)lines.push(['Equipment, disposal and fees',1,Math.round(last.fees)]);
-    var url='https://www.bigworks.app/tools/estimate-generator?bwq='+b64u(JSON.stringify(lines));
+    var enc=b64u(JSON.stringify(lines)), embedded=false;
+    try{ embedded = (window.top !== window.self); }catch(e){ embedded=true; }
+    var url = embedded
+      ? 'https://www.bigworks.app/tools/'+mode+'-generator?bwq='+enc
+      : 'invoice-generator.html?mode='+mode+'&lines='+enc;
     window.open(url,'_top');
-  });
+  }
+  $('estBtn').addEventListener('click',function(){ handoff('estimate'); });
+  $('invBtn').addEventListener('click',function(){ handoff('invoice'); });
   $('copyBtn').addEventListener('click',function(){if(!last.j)return;var l=[last.t.label.toUpperCase()+' — '+last.j.name+', '+last.qty+' '+last.j.unit,'','Labor: '+money(last.labor),'Materials (with markup): '+money(last.mat),'Fees: '+money(last.fees),'Overhead: '+money(last.overhead),'','PRICE: '+money(last.price)+'  ('+money2(last.per)+' per '+sing(last.j.unit)+')','','Calculated at bigworks.app/tools/pricing-calculator'].join('\n');var btn=$('copyBtn');function done(ok){btn.textContent=ok?'Copied ✓':'Press ⌘C';setTimeout(function(){btn.textContent='Copy breakdown';},1800);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(l).then(function(){done(true);},function(){fb(l,done);});}else fb(l,done);});
   function fb(txt,done){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
   $('resetBtn').addEventListener('click',function(){$('crew').value='1';$('setup').value='0.5';$('drive').value='30';$('matmk').value='20';$('fees').value='0';$('oh').value='15';$('margin').value='20';applyTrade();});

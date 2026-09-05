@@ -600,7 +600,6 @@
           var b = L.replace(/-/g,'+').replace(/_/g,'/'); while(b.length % 4) b += '=';
           var arr = JSON.parse(decodeURIComponent(escape(atob(b))));
           if(arr && arr.length){
-            setMode('estimate');
             document.getElementById('rows').innerHTML = '';
             arr.slice(0,25).forEach(function(it){ addRow(String(it[0]||'').slice(0,120), Number(it[1])||1, Number(it[2])||''); });
             recalc();
