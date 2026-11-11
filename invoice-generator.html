@@ -576,6 +576,8 @@
       a.download=(data.mode==='estimate'?'Estimate-':'Invoice-')+data.doc.no.replace(/[^A-Za-z0-9_-]/g,'')+'.pdf';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(a.href); },2000);
+      // bwtrack.js on the parent page forwards this as GA4 tool_action. Action name only, never form data.
+      try{ if(parent!==window) parent.postMessage({bwigEvent:'pdf_download'}, '*'); }catch(e){}
     });
   }
 
