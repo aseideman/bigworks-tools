@@ -578,6 +578,8 @@
       setTimeout(function(){ URL.revokeObjectURL(a.href); },2000);
       // bwtrack.js on the parent page forwards this as GA4 tool_action. Action name only, never form data.
       try{ if(parent!==window) parent.postMessage({bwigEvent:'pdf_download'}, '*'); }catch(e){}
+      // D-032 (b): anonymous numbers and line-item categories only (bwinputs.js; inert until switched on).
+      try{ if(window.BWInputs) window.BWInputs.action(); }catch(e){}
     });
   }
 
@@ -617,5 +619,6 @@
     setTimeout(ph, 350);
   })();
 </script>
+<script src="bwinputs.js?v=1" data-tool="invoice-generator" data-send="action"></script>
 </body>
 </html>
